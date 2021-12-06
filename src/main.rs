@@ -1,6 +1,7 @@
 use game::Game;
 use ggez::{conf::WindowMode, ContextBuilder, GameResult};
 
+mod common;
 mod game;
 mod math;
 mod space_shooter;

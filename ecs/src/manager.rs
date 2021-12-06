@@ -3,7 +3,7 @@ use std::{
     marker::PhantomData,
 };
 
-use crate::entity::{Entity, EntityId};
+use crate::{entity::{Entity, EntityId}, Tag};
 
 pub struct EntityTag<T>(PhantomData<T>);
 
@@ -18,16 +18,16 @@ pub struct EntityManager {
 }
 
 impl EntityManager {
-    pub fn add(&mut self) -> EntityId {
+    pub fn add(&mut self) -> &mut Entity {
         self.add_tag(DEFAULT_ENTITY_TAG)
     }
 
-    pub fn add_tag<S: ToString>(&mut self, tag: S) -> EntityId {
-        let entity = Entity::new(self.size, tag.to_string());
+    pub fn add_tag<S: Tag>(&mut self, tag: S) -> &mut Entity {
+        let entity = Entity::new(self.size, tag.value());
         self.size += 1;
         let id = entity.id;
         self.pending_add.push_back(entity);
-        id
+        self.pending_add.iter_mut().find(|e| e.id == id).unwrap()
     }
 
     pub fn update(&mut self) {
@@ -39,8 +39,8 @@ impl EntityManager {
         self.entities.get_mut(&id)
     }
 
-    pub fn get_entities<S: ToString>(&mut self, tag: S) -> Vec<&mut Entity> {
-        if let Some(ids) = self.tags.get(&tag.to_string()) {
+    pub fn get_entities<S: Tag>(&mut self, tag: S) -> Vec<&mut Entity> {
+        if let Some(ids) = self.tags.get(&tag.value()) {
             self.entities
                 .iter_mut()
                 .filter_map(|(id, e)| if ids.contains(id) { Some(e) } else { None })
@@ -87,7 +87,7 @@ impl EntityManager {
 
 #[cfg(test)]
 mod tests {
-    use crate::manager::DEFAULT_ENTITY_TAG;
+    use crate::{manager::DEFAULT_ENTITY_TAG, Tag};
 
     use super::EntityManager;
 
@@ -95,31 +95,31 @@ mod tests {
     fn test_insert_entity() {
         let mut manager = EntityManager::default();
 
-        let id = manager.add();
+        let id = manager.add().id;
         manager.update();
 
         assert!(manager.entities.contains_key(&id));
-        assert!(manager.tags.contains_key(DEFAULT_ENTITY_TAG));
-        assert!(manager.tags[DEFAULT_ENTITY_TAG].contains(&id));
+        assert!(manager.tags.contains_key(&DEFAULT_ENTITY_TAG.value()));
+        assert!(manager.tags[&DEFAULT_ENTITY_TAG.value()].contains(&id));
     }
 
     #[test]
     fn test_insert_entity_tag() {
         let mut manager = EntityManager::default();
         let tag = "MyTag";
+        let id = manager.add_tag(tag).id;
 
-        let id = manager.add_tag(tag);
         manager.update();
 
         assert!(manager.entities.contains_key(&id));
-        assert!(manager.tags.contains_key(tag));
-        assert!(manager.tags[tag].contains(&id));
+        assert!(manager.tags.contains_key(&tag.value()));
+        assert!(manager.tags[&tag.value()].contains(&id));
     }
 
     #[test]
     fn test_get_entity() {
         let mut manager = EntityManager::default();
-        let id = manager.add();
+        let id = manager.add().id;
         manager.add();
         manager.add();
         manager.update();
@@ -129,15 +129,15 @@ mod tests {
         assert!(entity.is_some());
         let entity = entity.unwrap();
         assert_eq!(entity.id, id);
-        assert_eq!(entity.tag, DEFAULT_ENTITY_TAG);
+        assert_eq!(entity.tag, DEFAULT_ENTITY_TAG.value());
     }
 
     #[test]
     fn test_get_entity_tag() {
         let mut manager = EntityManager::default();
         let tag = "MyTag";
-        let id1 = manager.add_tag(tag);
-        let id2 = manager.add_tag(tag);
+        let id1 = manager.add_tag(tag).id;
+        let id2 = manager.add_tag(tag).id;
         manager.add();
         manager.update();
 
@@ -152,8 +152,8 @@ mod tests {
     fn test_remove_dead() {
         let mut manager = EntityManager::default();
         let tag = "MyTag";
-        let id1 = manager.add_tag(tag);
-        let id2 = manager.add_tag(tag);
+        let id1 = manager.add_tag(tag).id;
+        let id2 = manager.add_tag(tag).id;
         manager.add();
         manager.update();
 
@@ -172,8 +172,8 @@ mod tests {
     fn test_remove_dead_multiple_tags() {
         let mut manager = EntityManager::default();
         let tag = "MyTag";
-        let id1 = manager.add_tag(tag);
-        let id2 = manager.add();
+        let id1 = manager.add_tag(tag).id;
+        let id2 = manager.add().id;
         manager.add();
         manager.update();
 
@@ -183,7 +183,7 @@ mod tests {
         assert!(manager.get_entity(id2).is_some());
         assert!(manager.get_entity(id1).is_none());
 
-        assert!(manager.tags[DEFAULT_ENTITY_TAG].iter().any(|id| *id == id2));
-        assert!(!manager.tags[tag].iter().any(|id| *id == id1));
+        assert!(manager.tags[&DEFAULT_ENTITY_TAG.value()].iter().any(|id| *id == id2));
+        assert!(!manager.tags[&tag.value()].iter().any(|id| *id == id1));
     }
 }
