@@ -1,4 +1,4 @@
-use ggez::{ContextBuilder, event::EventHandler, GameError, GameResult, conf::WindowMode};
+use ggez::{conf::WindowMode, event::EventHandler, ContextBuilder, GameError, GameResult, graphics::Color};
 
 mod math;
 
@@ -12,8 +12,10 @@ impl EventHandler for Game {
         Ok(())
     }
 
-    fn draw(&mut self, _ctx: &mut ggez::Context) -> Result<(), GameError> {
-        Ok(())
+    fn draw(&mut self, ctx: &mut ggez::Context) -> Result<(), GameError> {
+        ggez::graphics::clear(ctx, Color::WHITE);
+        
+        ggez::graphics::present(ctx)
     }
 }
 
@@ -21,6 +23,6 @@ fn main() -> GameResult<()> {
     let (ctx, event_loop) = ContextBuilder::new("Comp4300", "Boss")
         .window_mode(WindowMode::default().dimensions(WINDOWS_WIDTH, WINDOWS_HEIGHT))
         .build()?;
-    
+
     ggez::event::run(ctx, event_loop, Game)
 }
