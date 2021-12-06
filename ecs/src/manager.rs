@@ -22,7 +22,7 @@ impl EntityManager {
         self.add_tag(DEFAULT_ENTITY_TAG)
     }
 
-    pub fn add_tag(&mut self, tag: &str) -> EntityId {
+    pub fn add_tag<S: ToString>(&mut self, tag: S) -> EntityId {
         let entity = Entity::new(self.size, tag.to_string());
         self.size += 1;
         let id = entity.id;
@@ -35,12 +35,12 @@ impl EntityManager {
         self.safe_insert_entity()
     }
 
-    pub fn get_entity(&mut self, id: EntityId) -> Option<&mut Entity> {
+    pub fn get_entity<'a>(&'a mut self, id: EntityId) -> Option<&'a mut Entity> {
         self.entities.get_mut(&id)
     }
 
-    pub fn get_entities(&mut self, tag: &str) -> Vec<&mut Entity> {
-        if let Some(ids) = self.tags.get(tag) {
+    pub fn get_entities<'a, S: ToString>(&'a mut self, tag: S) -> Vec<&'a mut Entity> {
+        if let Some(ids) = self.tags.get(&tag.to_string()) {
             self.entities
                 .iter_mut()
                 .filter_map(|(id, e)| if ids.contains(id) { Some(e) } else { None })
@@ -74,5 +74,69 @@ impl EntityManager {
             }
             self.entities.insert(entity.id, entity);
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::manager::DEFAULT_ENTITY_TAG;
+
+    use super::EntityManager;
+
+    #[test]
+    fn test_insert_entity() {
+        let mut manager = EntityManager::default();
+
+        let id = manager.add();
+        manager.update();
+
+        assert!(manager.entities.contains_key(&id));
+        assert!(manager.tags.contains_key(DEFAULT_ENTITY_TAG));
+        assert!(manager.tags[DEFAULT_ENTITY_TAG].contains(&id));
+    }
+
+    #[test]
+    fn test_insert_entity_tag() {
+        let mut manager = EntityManager::default();
+        let tag = "MyTag";
+
+        let id = manager.add_tag(tag);
+        manager.update();
+
+        assert!(manager.entities.contains_key(&id));
+        assert!(manager.tags.contains_key(tag));
+        assert!(manager.tags[tag].contains(&id));
+    }
+
+    #[test]
+    fn test_get_entity() {
+        let mut manager = EntityManager::default();
+        let id = manager.add();
+        manager.add();
+        manager.add();
+        manager.update();
+
+        let entity = manager.get_entity(id);
+
+        assert!(entity.is_some());
+        let entity = entity.unwrap();
+        assert_eq!(entity.id, id);
+        assert_eq!(entity.tag, DEFAULT_ENTITY_TAG);
+    }
+
+    #[test]
+    fn test_get_entity_tag() {
+        let mut manager = EntityManager::default();
+        let tag = "MyTag";
+        let id1 = manager.add_tag(tag);
+        let id2 = manager.add_tag(tag);
+        manager.add();
+        manager.update();
+
+        let entities = manager.get_entities(tag);
+
+        assert_eq!(entities.len(), 2);
+        assert!(entities.iter().any(|e| e.id == id1));
+        assert!(entities.iter().any(|e| e.id == id2));
     }
 }

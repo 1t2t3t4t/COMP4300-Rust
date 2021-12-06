@@ -17,10 +17,19 @@ impl Vec2 {
         Self { x, y }
     }
 
+    pub fn magnitude(&self) -> f32 {
+        f32::sqrt(self.x.powi(2) + self.y.powi(2))
+    }
+
     pub fn distance(&self, rhs: &Self) -> f32 {
         let dx = self.x - rhs.x;
         let dy = self.y - rhs.y;
-        f32::sqrt(dx.powi(2) + dy.powi(2))
+        Vec2::new(dx, dy).magnitude()
+    }
+
+    pub fn normalized(&self) -> Self {
+        let length = self.magnitude();
+        Vec2::new(self.x / length, self.y / length)
     }
 }
 
