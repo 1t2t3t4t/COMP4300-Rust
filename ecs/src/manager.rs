@@ -62,6 +62,7 @@ impl EntityManager {
                 }
             })
             .collect::<Vec<(EntityId, String)>>();
+
         for to_delete in to_delete_entities {
             if let Some(entities_vec) = self.tags.get_mut(&to_delete.1) {
                 if let Some(idx) = entities_vec.iter().position(|e_id| *e_id == to_delete.0) {
@@ -165,5 +166,24 @@ mod tests {
         let tag_entries = manager.get_entities(tag);
         assert!(tag_entries.iter().any(|e| e.id == id2));
         assert!(!tag_entries.iter().any(|e| e.id == id1));
+    }
+
+    #[test]
+    fn test_remove_dead_multiple_tags() {
+        let mut manager = EntityManager::default();
+        let tag = "MyTag";
+        let id1 = manager.add_tag(tag);
+        let id2 = manager.add();
+        manager.add();
+        manager.update();
+
+        manager.get_entity(id1).unwrap().destroy();
+        manager.update();
+
+        assert!(manager.get_entity(id2).is_some());
+        assert!(manager.get_entity(id1).is_none());
+
+        assert!(manager.tags[DEFAULT_ENTITY_TAG].iter().any(|id| *id == id2));
+        assert!(!manager.tags[tag].iter().any(|id| *id == id1));
     }
 }
