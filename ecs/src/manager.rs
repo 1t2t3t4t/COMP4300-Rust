@@ -35,11 +35,11 @@ impl EntityManager {
         self.safe_insert_entity()
     }
 
-    pub fn get_entity<'a>(&'a mut self, id: EntityId) -> Option<&'a mut Entity> {
+    pub fn get_entity(&mut self, id: EntityId) -> Option<&mut Entity> {
         self.entities.get_mut(&id)
     }
 
-    pub fn get_entities<'a, S: ToString>(&'a mut self, tag: S) -> Vec<&'a mut Entity> {
+    pub fn get_entities<S: ToString>(&mut self, tag: S) -> Vec<&mut Entity> {
         if let Some(ids) = self.tags.get(&tag.to_string()) {
             self.entities
                 .iter_mut()

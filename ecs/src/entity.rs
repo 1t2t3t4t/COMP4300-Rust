@@ -32,12 +32,13 @@ impl Entity {
     }
 
     pub fn add_component<T: Any>(&mut self, component: T) -> &mut Self {
-        self.components
+        let added = self.components
             .insert(TypeId::of::<T>(), Box::new(component));
+        debug_assert!(added.is_none(), "Component already added");
         self
     }
 
-    pub fn get_component<'a, T: Any>(&'a mut self) -> Option<&'a mut T> {
+    pub fn get_component<T: Any>(&mut self) -> Option<&mut T> {
         self.components
             .get_mut(&TypeId::of::<T>())
             .and_then(|v| v.downcast_mut::<T>())
