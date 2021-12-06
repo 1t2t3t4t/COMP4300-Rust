@@ -4,7 +4,12 @@ use ggez::{
     Context, GameResult,
 };
 
-use crate::{common::Transform, game::Tag, math::Vec2, WINDOWS_WIDTH};
+use crate::{
+    common::{Transform, TryGet},
+    game::Tag,
+    math::Vec2,
+    WINDOWS_WIDTH,
+};
 
 pub struct Button {
     pub title: String,
@@ -16,7 +21,7 @@ pub fn render_ui_system(manager: &mut EntityManager, ctx: &mut Context) -> GameR
     let mut y_pos = 10f32;
 
     for entity in buttons {
-        let button = entity.get_component::<Button>().unwrap();
+        let button = entity.try_get_component::<Button>()?;
 
         let mut text = ggez::graphics::Text::new(button.title.clone());
         text.set_font(Font::default(), PxScale::from(button.size));
