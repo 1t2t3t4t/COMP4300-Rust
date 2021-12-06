@@ -158,7 +158,7 @@ mod tests {
 
         manager.get_entity(id1).unwrap().destroy();
         manager.update();
-        
+
         assert!(manager.get_entity(id2).is_some());
         assert!(manager.get_entity(id1).is_none());
 

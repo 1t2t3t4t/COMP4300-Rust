@@ -6,7 +6,7 @@ use ggez::GameError;
 #[derive(Default)]
 pub struct Game {
     entity_manager: EntityManager,
-    setup: bool
+    setup: bool,
 }
 
 impl Game {
