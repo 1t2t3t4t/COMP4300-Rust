@@ -17,8 +17,12 @@ impl Vec2 {
         Self { x, y }
     }
 
+    pub fn magnitude_sq(&self) -> f32 {
+        self.x.powi(2) + self.y.powi(2)
+    }
+
     pub fn magnitude(&self) -> f32 {
-        f32::sqrt(self.x.powi(2) + self.y.powi(2))
+        f32::sqrt(self.magnitude_sq())
     }
 
     pub fn distance(&self, rhs: &Self) -> f32 {
