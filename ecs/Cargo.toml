@@ -1,13 +1,8 @@
 [package]
-name = "comp4300"
+name = "ecs"
 version = "0.1.0"
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
-[workspace]
-member = ["./ecs"]
-
 [dependencies]
-ggez = "0.7.0"
-ecs = { path = "./ecs" }

@@ -325,6 +325,7 @@ dependencies = [
 name = "comp4300"
 version = "0.1.0"
 dependencies = [
+ "ecs",
  "ggez",
 ]
 
@@ -682,6 +683,10 @@ checksum = "33cf9537e2d06891448799b96d5a8c8083e0e90522a7fdabe6ebf4f41d79d651"
 dependencies = [
  "bitflags",
 ]
+
+[[package]]
+name = "ecs"
+version = "0.1.0"
 
 [[package]]
 name = "either"
