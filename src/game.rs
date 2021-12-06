@@ -26,7 +26,7 @@ impl EventHandler for Game {
 
     fn draw(&mut self, ctx: &mut ggez::Context) -> Result<(), GameError> {
         ggez::graphics::clear(ctx, Color::WHITE);
-        
+
         ggez::graphics::present(ctx)
     }
 }

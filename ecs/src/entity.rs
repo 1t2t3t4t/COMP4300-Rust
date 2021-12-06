@@ -1,4 +1,7 @@
-use std::{any::{Any, TypeId}, collections::HashMap};
+use std::{
+    any::{Any, TypeId},
+    collections::HashMap,
+};
 
 pub type EntityId = u64;
 
@@ -7,7 +10,7 @@ pub struct Entity {
     pub id: EntityId,
     pub tag: String,
     alive: bool,
-    components: HashMap<TypeId, Box<dyn Any>>
+    components: HashMap<TypeId, Box<dyn Any>>,
 }
 
 impl Entity {
@@ -16,7 +19,7 @@ impl Entity {
             id,
             alive: true,
             tag,
-            components: HashMap::new()
+            components: HashMap::new(),
         }
     }
 
@@ -29,7 +32,8 @@ impl Entity {
     }
 
     pub fn add_component<T: Any>(&mut self, component: T) -> &mut Self {
-        self.components.insert(TypeId::of::<T>(), Box::new(component));
+        self.components
+            .insert(TypeId::of::<T>(), Box::new(component));
         self
     }
 
