@@ -5,6 +5,7 @@ mod common;
 mod game;
 mod math;
 mod space_shooter;
+mod ui;
 
 const WINDOWS_WIDTH: f32 = 1920f32;
 const WINDOWS_HEIGHT: f32 = 1080f32;
