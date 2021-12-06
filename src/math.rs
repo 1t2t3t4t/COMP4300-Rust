@@ -42,6 +42,12 @@ impl From<Vec2> for DrawParam {
     }
 }
 
+impl From<Vec2> for [f32; 2] {
+    fn from(vec2: Vec2) -> Self {
+        [vec2.x, vec2.y]
+    }
+}
+
 impl Add for Vec2 {
     type Output = Self;
 
