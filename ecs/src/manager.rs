@@ -3,7 +3,10 @@ use std::{
     marker::PhantomData,
 };
 
-use crate::{entity::{Entity, EntityId}, Tag};
+use crate::{
+    entity::{Entity, EntityId},
+    Tag,
+};
 
 pub struct EntityTag<T>(PhantomData<T>);
 
@@ -183,7 +186,9 @@ mod tests {
         assert!(manager.get_entity(id2).is_some());
         assert!(manager.get_entity(id1).is_none());
 
-        assert!(manager.tags[&DEFAULT_ENTITY_TAG.value()].iter().any(|id| *id == id2));
+        assert!(manager.tags[&DEFAULT_ENTITY_TAG.value()]
+            .iter()
+            .any(|id| *id == id2));
         assert!(!manager.tags[&tag.value()].iter().any(|id| *id == id1));
     }
 }

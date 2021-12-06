@@ -8,7 +8,10 @@ pub trait Tag {
     fn value(self) -> String;
 }
 
-impl <T> Tag for T where T : Debug {
+impl<T> Tag for T
+where
+    T: Debug,
+{
     fn value(self) -> String {
         format!("{:?}", self)
     }

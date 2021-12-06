@@ -2,7 +2,7 @@ use crate::math::Vec2;
 
 pub struct Transform {
     pub position: Vec2,
-    pub rotation: Vec2
+    pub rotation: Vec2,
 }
 
 impl Transform {
