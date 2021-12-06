@@ -4,15 +4,17 @@ pub type EntityId = u64;
 pub struct Entity {
     pub id: EntityId,
     pub tag: String,
-    alive: bool
+    alive: bool,
 }
 
 impl Entity {
     pub(crate) const fn new(id: EntityId, tag: String) -> Self {
         Self {
-            id, alive: true, tag
+            id,
+            alive: true,
+            tag,
         }
-    } 
+    }
 
     pub fn destroy(&mut self) {
         self.alive = false;

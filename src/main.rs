@@ -1,4 +1,6 @@
-use ggez::{conf::WindowMode, event::EventHandler, ContextBuilder, GameError, GameResult, graphics::Color};
+use ggez::{
+    conf::WindowMode, event::EventHandler, graphics::Color, ContextBuilder, GameError, GameResult,
+};
 
 mod math;
 
@@ -14,7 +16,7 @@ impl EventHandler for Game {
 
     fn draw(&mut self, ctx: &mut ggez::Context) -> Result<(), GameError> {
         ggez::graphics::clear(ctx, Color::WHITE);
-        
+
         ggez::graphics::present(ctx)
     }
 }
