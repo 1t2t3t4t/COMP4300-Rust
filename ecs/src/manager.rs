@@ -54,14 +54,21 @@ impl EntityManager {
         let to_delete_entities = self
             .entities
             .values()
-            .filter(|e| !e.is_alive())
-            .collect::<Vec<&Entity>>();
+            .filter_map(|e| {
+                if !e.is_alive() {
+                    Some((e.id, e.tag.clone()))
+                } else {
+                    None
+                }
+            })
+            .collect::<Vec<(EntityId, String)>>();
         for to_delete in to_delete_entities {
-            if let Some(entities_vec) = self.tags.get_mut(&to_delete.tag) {
-                if let Some(idx) = entities_vec.iter().position(|e_id| *e_id == to_delete.id) {
+            if let Some(entities_vec) = self.tags.get_mut(&to_delete.1) {
+                if let Some(idx) = entities_vec.iter().position(|e_id| *e_id == to_delete.0) {
                     entities_vec.remove(idx);
                 }
             }
+            self.entities.remove(&to_delete.0);
         }
     }
 
@@ -138,5 +145,25 @@ mod tests {
         assert_eq!(entities.len(), 2);
         assert!(entities.iter().any(|e| e.id == id1));
         assert!(entities.iter().any(|e| e.id == id2));
+    }
+
+    #[test]
+    fn test_remove_dead() {
+        let mut manager = EntityManager::default();
+        let tag = "MyTag";
+        let id1 = manager.add_tag(tag);
+        let id2 = manager.add_tag(tag);
+        manager.add();
+        manager.update();
+
+        manager.get_entity(id1).unwrap().destroy();
+        manager.update();
+        
+        assert!(manager.get_entity(id2).is_some());
+        assert!(manager.get_entity(id1).is_none());
+
+        let tag_entries = manager.get_entities(tag);
+        assert!(tag_entries.iter().any(|e| e.id == id2));
+        assert!(!tag_entries.iter().any(|e| e.id == id1));
     }
 }

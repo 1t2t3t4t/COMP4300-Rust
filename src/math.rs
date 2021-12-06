@@ -2,7 +2,7 @@ use std::ops::{Add, Mul, Sub};
 
 use ggez::graphics::DrawParam;
 
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, Copy, Debug, PartialEq)]
 pub struct Vec2 {
     pub x: f32,
     pub y: f32,
@@ -25,9 +25,8 @@ impl Vec2 {
         f32::sqrt(self.magnitude_sq())
     }
 
-    pub fn distance(&self, rhs: &Self) -> f32 {
-        let dx = self.x - rhs.x;
-        let dy = self.y - rhs.y;
+    pub fn distance(self, rhs: Self) -> f32 {
+        let Self { x: dx, y: dy } = rhs - self;
         Vec2::new(dx, dy).magnitude()
     }
 
