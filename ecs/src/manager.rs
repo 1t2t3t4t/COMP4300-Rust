@@ -2,6 +2,7 @@ use std::{
     collections::{HashMap, VecDeque},
     marker::PhantomData,
 };
+use std::any::Any;
 
 use crate::{
     entity::{Entity, EntityId},
@@ -51,6 +52,27 @@ impl EntityManager {
         } else {
             vec![]
         }
+    }
+
+    pub fn query_entities_tag_mut<T: Any, S: Tag>(&mut self, tag: S) -> Vec<&mut T> {
+        self.get_entities(tag)
+            .into_iter()
+            .filter_map(|e| e.get_component_mut::<T>())
+            .collect()
+    }
+
+    pub fn query_entities<T: Any>(&self) -> Vec<&T> {
+        self.entities
+            .values()
+            .filter_map(|e| e.get_component::<T>())
+            .collect()
+    }
+
+    pub fn query_entities_mut<T: Any>(&mut self) -> Vec<&mut T> {
+        self.entities
+            .values_mut()
+            .filter_map(|e| e.get_component_mut::<T>())
+            .collect()
     }
 
     fn safe_remove_entity(&mut self) {

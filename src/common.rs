@@ -22,7 +22,7 @@ pub trait TryGet {
 
 impl TryGet for Entity {
     fn try_get_component<T: Any>(&mut self) -> GameResult<&mut T> {
-        self.get_component::<T>().ok_or_else(|| {
+        self.get_component_mut::<T>().ok_or_else(|| {
             GameError::CustomError(format!(
                 "Component with type {} does not exist",
                 type_name::<T>()

@@ -39,7 +39,13 @@ impl Entity {
         self
     }
 
-    pub fn get_component<T: Any>(&mut self) -> Option<&mut T> {
+    pub fn get_component<T: Any>(&self) -> Option<&T> {
+        self.components
+            .get(&TypeId::of::<T>())
+            .and_then(|v| v.downcast_ref::<T>())
+    }
+
+    pub fn get_component_mut<T: Any>(&mut self) -> Option<&mut T> {
         self.components
             .get_mut(&TypeId::of::<T>())
             .and_then(|v| v.downcast_mut::<T>())
@@ -65,7 +71,7 @@ mod tests {
 
         entity.add_component(comp);
 
-        let res = entity.get_component::<OtherComponent>();
+        let res = entity.get_component_mut::<OtherComponent>();
         assert!(res.is_none());
         assert!(!entity.has_component::<OtherComponent>())
     }
@@ -77,7 +83,7 @@ mod tests {
 
         entity.add_component(comp);
 
-        let res = entity.get_component::<MyComponent>();
+        let res = entity.get_component_mut::<MyComponent>();
         assert!(res.is_some());
         assert!(entity.has_component::<MyComponent>())
     }
