@@ -24,6 +24,7 @@ impl SpaceGame {
     fn setup(&mut self) {
         self.setup = true;
         component::create_player(&mut self.entity_manager);
+        component::create_enemy(&mut self.entity_manager);
     }
 }
 
@@ -34,7 +35,8 @@ impl EventHandler for SpaceGame {
         }
         self.entity_manager.update();
 
-        system::movement::player_movement_system(&mut self.entity_manager, ctx)
+        system::movement::player_movement_system(&mut self.entity_manager, ctx)?;
+        system::movement::enemy_movement_system(&mut self.entity_manager, ctx)
     }
 
     fn draw(&mut self, ctx: &mut Context) -> Result<(), GameError> {

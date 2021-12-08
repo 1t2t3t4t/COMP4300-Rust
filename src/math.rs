@@ -52,6 +52,13 @@ impl From<Vec2> for [f32; 2] {
     }
 }
 
+impl From<Vec2> for ggez::mint::Point2<f32> {
+    fn from(vec: Vec2) -> Self {
+        let arr: [f32; 2] = vec.into();
+        arr.into()
+    }
+}
+
 impl Add for Vec2 {
     type Output = Self;
 
