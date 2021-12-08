@@ -32,7 +32,11 @@ impl Vec2 {
 
     pub fn normalized(&self) -> Self {
         let length = self.magnitude();
-        Vec2::new(self.x / length, self.y / length)
+        if length == 0f32 {
+            Self::zero()
+        } else {
+            Vec2::new(self.x / length, self.y / length)
+        }
     }
 }
 

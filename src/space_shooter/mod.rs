@@ -28,10 +28,11 @@ impl SpaceGame {
 }
 
 impl EventHandler for SpaceGame {
-    fn update(&mut self, _ctx: &mut Context) -> Result<(), GameError> {
+    fn update(&mut self, ctx: &mut Context) -> Result<(), GameError> {
         if !self.setup { self.setup(); }
         self.entity_manager.update();
-        Ok(())
+
+        system::movement::player_movement_system(&mut self.entity_manager, ctx)
     }
 
     fn draw(&mut self, ctx: &mut Context) -> Result<(), GameError> {
