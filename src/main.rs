@@ -1,6 +1,5 @@
-use game::Game;
-use ggez::{conf::WindowMode, ContextBuilder, GameResult};
 use crate::space_shooter::SpaceGame;
+use ggez::{conf::WindowMode, ContextBuilder, GameResult};
 
 mod common;
 mod game;

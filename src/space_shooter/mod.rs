@@ -1,7 +1,7 @@
-use ggez::{Context, GameError};
+use ecs::manager::EntityManager;
 use ggez::event::EventHandler;
 use ggez::graphics::Color;
-use ecs::manager::EntityManager;
+use ggez::{Context, GameError};
 
 mod component;
 mod system;
@@ -11,13 +11,13 @@ enum Tag {
     Player,
     Enemy,
     Bullet,
-    Ui
+    Ui,
 }
 
 #[derive(Default)]
 pub struct SpaceGame {
     entity_manager: EntityManager,
-    setup: bool
+    setup: bool,
 }
 
 impl SpaceGame {
@@ -29,7 +29,9 @@ impl SpaceGame {
 
 impl EventHandler for SpaceGame {
     fn update(&mut self, ctx: &mut Context) -> Result<(), GameError> {
-        if !self.setup { self.setup(); }
+        if !self.setup {
+            self.setup();
+        }
         self.entity_manager.update();
 
         system::movement::player_movement_system(&mut self.entity_manager, ctx)

@@ -1,8 +1,8 @@
+use std::any::Any;
 use std::{
     collections::{HashMap, VecDeque},
     marker::PhantomData,
 };
-use std::any::Any;
 
 use crate::{
     entity::{Entity, EntityId},
