@@ -1,3 +1,4 @@
+use crate::ui::render_fps_system;
 use ecs::manager::EntityManager;
 use ggez::event::EventHandler;
 use ggez::graphics::Color;
@@ -42,6 +43,7 @@ impl EventHandler for SpaceGame {
     fn draw(&mut self, ctx: &mut Context) -> Result<(), GameError> {
         ggez::graphics::clear(ctx, Color::WHITE);
         system::render::render_shape_system(&mut self.entity_manager, ctx)?;
+        render_fps_system(ctx)?;
         ggez::graphics::present(ctx)
     }
 }

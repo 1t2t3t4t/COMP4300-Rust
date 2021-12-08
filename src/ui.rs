@@ -8,7 +8,7 @@ use crate::{
     common::{Transform, TryGet},
     game::Tag,
     math::Vec2,
-    WINDOWS_WIDTH,
+    WINDOWS_HEIGHT, WINDOWS_WIDTH,
 };
 
 pub struct Button {
@@ -46,4 +46,14 @@ pub fn render_ui_system(manager: &mut EntityManager, ctx: &mut Context) -> GameR
         y_pos += text.height(ctx) + 10f32;
     }
     Ok(())
+}
+
+pub fn render_fps_system(ctx: &mut Context) -> GameResult<()> {
+    let fps = ggez::timer::fps(ctx);
+
+    let mut text = ggez::graphics::Text::new(format!("fps: {}", fps.round()));
+    text.set_font(Font::default(), PxScale::from(15f32));
+    let (w, h) = (text.width(ctx), text.height(ctx));
+    let position = [WINDOWS_WIDTH - 10f32 - w, WINDOWS_HEIGHT - 10f32 - h];
+    ggez::graphics::draw(ctx, &text, (position, Color::BLACK))
 }

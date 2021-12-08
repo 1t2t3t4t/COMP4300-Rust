@@ -1,12 +1,12 @@
 use crate::common::Transform;
 use crate::math::Vec2;
+use crate::space_shooter::component::general::Score;
+use crate::space_shooter::component::movement::Speed;
 use crate::space_shooter::component::shape::{Geometry, Shape};
 use crate::space_shooter::Tag;
 use crate::{WINDOWS_HEIGHT, WINDOWS_WIDTH};
 use ecs::entity::Entity;
 use ecs::manager::EntityManager;
-use crate::space_shooter::component::general::Score;
-use crate::space_shooter::component::movement::Speed;
 
 pub fn create_player(manager: &mut EntityManager) -> &Entity {
     manager
@@ -34,7 +34,7 @@ pub fn create_enemy(manager: &mut EntityManager) -> &Entity {
         ))
         .add_component(Score(100))
         .add_component(Speed {
-            velocity: Vec2::new(100f32, 100f32)
+            velocity: Vec2::new(100f32, 100f32),
         })
 }
 

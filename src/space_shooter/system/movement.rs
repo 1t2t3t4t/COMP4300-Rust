@@ -1,9 +1,9 @@
 use ecs::manager::EntityManager;
-use ggez::{Context, GameError, GameResult};
+use ggez::{Context, GameResult};
 
-use crate::{common::Transform, math::Vec2, space_shooter::Tag};
 use crate::common::TryGet;
 use crate::space_shooter::component::movement::Speed;
+use crate::{common::Transform, math::Vec2, space_shooter::Tag};
 
 const PLAYER_SPEED: f32 = 150f32;
 
@@ -37,8 +37,7 @@ pub fn enemy_movement_system(manager: &mut EntityManager, ctx: &mut Context) -> 
     for enemy in enemies {
         let speed = enemy.try_get_component::<Speed>()?.velocity;
         let transform = enemy.try_get_component::<Transform>()?;
-        transform.position =
-            transform.position + (speed * dt.as_secs_f32());
+        transform.position = transform.position + (speed * dt.as_secs_f32());
     }
     Ok(())
 }

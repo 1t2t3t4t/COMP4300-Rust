@@ -1,4 +1,3 @@
-use std::detect::__is_feature_detected::sha;
 use crate::common::Transform;
 use crate::space_shooter::component::shape::{Geometry, Shape};
 use crate::space_shooter::Tag;
@@ -26,13 +25,9 @@ fn get_drawable(
             ),
             Color::RED,
         ),
-        Geometry::Circle => mesh_builder.circle(
-            draw_mode,
-            transform.position,
-            shape.radius,
-            0.1,
-            Color::RED
-        ),
+        Geometry::Circle => {
+            mesh_builder.circle(draw_mode, transform.position, shape.radius, 0.1, Color::RED)
+        }
     }?
     .build(ctx)
 }
