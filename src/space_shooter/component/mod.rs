@@ -14,6 +14,7 @@ use crate::space_shooter::component::constant::{
 };
 use crate::space_shooter::component::game::Spawner;
 use rand::Rng;
+use crate::math::random::rand_element;
 
 pub(crate) mod constant {
     use std::time::Duration;
@@ -45,11 +46,11 @@ pub fn create_enemy(manager: &mut EntityManager) -> &Entity {
     let speed = rng.gen_range(ENEMY_MIN_SPEED..=ENEMY_MAX_SPEED);
     let x_pos = rng.gen_range(0f32..=(WINDOWS_WIDTH - ENEMY_SIZE));
     let y_pos = rng.gen_range(0f32..=(WINDOWS_HEIGHT - ENEMY_SIZE));
-
+    let shape = rand_element([Geometry::Rectangle, Geometry::Circle]);
     manager
         .add_tag(Tag::Enemy)
         .add_component(Shape {
-            geometry: Geometry::Circle,
+            geometry: shape,
             radius: ENEMY_SIZE,
         })
         .add_component(Transform::new(Vec2::new(x_pos, y_pos), Vec2::zero()))
@@ -68,6 +69,7 @@ pub fn create_enemy_spawner(manager: &mut EntityManager) -> &Entity {
 }
 
 pub mod shape {
+    #[derive(Copy, Clone)]
     pub enum Geometry {
         Triangle,
         Rectangle,

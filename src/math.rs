@@ -88,3 +88,12 @@ impl Sub for Vec2 {
         }
     }
 }
+
+pub mod random {
+    use rand::Rng;
+
+    pub fn rand_element<T: Copy + Clone, const N: usize>(elements: [T; N]) -> T {
+        let idx = rand::thread_rng().gen_range(0..elements.len());
+        elements[idx]
+    }
+}
