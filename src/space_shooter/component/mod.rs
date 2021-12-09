@@ -1,4 +1,3 @@
-use std::time::Duration;
 use crate::common::Transform;
 use crate::math::Vec2;
 use crate::space_shooter::component::general::Score;
@@ -8,10 +7,13 @@ use crate::space_shooter::Tag;
 use crate::{WINDOWS_HEIGHT, WINDOWS_WIDTH};
 use ecs::entity::Entity;
 use ecs::manager::EntityManager;
-use rand;
-use rand::Rng;
-use crate::space_shooter::component::constant::{ENEMY_MAX_SPEED, ENEMY_MIN_SPEED, ENEMY_SIZE, ENEMY_SPAWN_INTERVAL};
+use std::time::Duration;
+
+use crate::space_shooter::component::constant::{
+    ENEMY_MAX_SPEED, ENEMY_MIN_SPEED, ENEMY_SIZE, ENEMY_SPAWN_INTERVAL,
+};
 use crate::space_shooter::component::game::Spawner;
+use rand::Rng;
 
 pub(crate) mod constant {
     use std::time::Duration;
@@ -50,10 +52,7 @@ pub fn create_enemy(manager: &mut EntityManager) -> &Entity {
             geometry: Geometry::Circle,
             radius: ENEMY_SIZE,
         })
-        .add_component(Transform::new(
-            Vec2::new(x_pos, y_pos),
-            Vec2::zero(),
-        ))
+        .add_component(Transform::new(Vec2::new(x_pos, y_pos), Vec2::zero()))
         .add_component(Score(100))
         .add_component(Speed {
             velocity: Vec2::new(speed, speed),
@@ -61,12 +60,11 @@ pub fn create_enemy(manager: &mut EntityManager) -> &Entity {
 }
 
 pub fn create_enemy_spawner(manager: &mut EntityManager) -> &Entity {
-    manager.add_tag(Tag::Spawner)
-        .add_component(Spawner {
-            max: 20,
-            interval: ENEMY_SPAWN_INTERVAL,
-            last_spawned_duration: Duration::from_secs(0)
-        })
+    manager.add_tag(Tag::Spawner).add_component(Spawner {
+        max: 20,
+        interval: ENEMY_SPAWN_INTERVAL,
+        last_spawned_duration: Duration::from_secs(0),
+    })
 }
 
 pub mod shape {
@@ -109,6 +107,6 @@ pub mod game {
     pub struct Spawner {
         pub max: usize,
         pub interval: Duration,
-        pub last_spawned_duration: Duration
+        pub last_spawned_duration: Duration,
     }
 }

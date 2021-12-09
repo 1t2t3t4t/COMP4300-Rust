@@ -13,13 +13,13 @@ enum Tag {
     Enemy,
     Bullet,
     Ui,
-    Spawner
+    Spawner,
 }
 
 #[derive(Default)]
 pub struct SpaceGame {
     entity_manager: EntityManager,
-    setup: bool
+    setup: bool,
 }
 
 impl SpaceGame {

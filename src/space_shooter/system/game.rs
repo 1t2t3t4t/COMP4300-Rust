@@ -1,11 +1,11 @@
-use std::ops::Add;
-use std::time::Duration;
-use ggez::{Context, GameResult};
-use ecs::manager::EntityManager;
 use crate::common::TryGet;
+use crate::space_shooter::component;
 use crate::space_shooter::component::game::Spawner;
 use crate::space_shooter::Tag;
-use crate::space_shooter::component;
+use ecs::manager::EntityManager;
+use ggez::{Context, GameResult};
+use std::ops::Add;
+use std::time::Duration;
 
 pub fn enemy_spawner(manager: &mut EntityManager, ctx: &mut Context) -> GameResult<()> {
     let enemy_count = manager.get_entities(Tag::Enemy).len();

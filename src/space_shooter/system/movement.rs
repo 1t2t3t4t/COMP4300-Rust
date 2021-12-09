@@ -2,9 +2,9 @@ use ecs::manager::EntityManager;
 use ggez::{Context, GameResult};
 
 use crate::common::TryGet;
+use crate::space_shooter::component::constant::PLAYER_SPEED;
 use crate::space_shooter::component::movement::Speed;
 use crate::{common::Transform, math::Vec2, space_shooter::Tag};
-use crate::space_shooter::component::constant::PLAYER_SPEED;
 
 pub fn player_movement_system(manager: &mut EntityManager, ctx: &mut Context) -> GameResult<()> {
     let players = manager.get_entities(Tag::Player);
