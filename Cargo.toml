@@ -11,3 +11,4 @@ member = ["./ecs"]
 [dependencies]
 ggez = "0.7.0"
 ecs = { path = "./ecs" }
+rand = "0.8.4"

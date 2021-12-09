@@ -1,7 +1,6 @@
 use std::fmt::Debug;
 
 pub mod entity;
-
 pub mod manager;
 
 pub trait Tag {

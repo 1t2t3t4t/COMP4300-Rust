@@ -13,12 +13,13 @@ enum Tag {
     Enemy,
     Bullet,
     Ui,
+    Spawner
 }
 
 #[derive(Default)]
 pub struct SpaceGame {
     entity_manager: EntityManager,
-    setup: bool,
+    setup: bool
 }
 
 impl SpaceGame {
@@ -26,6 +27,7 @@ impl SpaceGame {
         self.setup = true;
         component::create_player(&mut self.entity_manager);
         component::create_enemy(&mut self.entity_manager);
+        component::create_enemy_spawner(&mut self.entity_manager);
     }
 }
 
@@ -36,6 +38,7 @@ impl EventHandler for SpaceGame {
         }
         self.entity_manager.update();
 
+        system::game::enemy_spawner(&mut self.entity_manager, ctx)?;
         system::movement::player_movement_system(&mut self.entity_manager, ctx)?;
         system::movement::enemy_movement_system(&mut self.entity_manager, ctx)
     }
