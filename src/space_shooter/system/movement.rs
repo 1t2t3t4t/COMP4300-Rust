@@ -8,6 +8,7 @@ use crate::{common::Transform, math::Vec2, space_shooter::Tag};
 use crate::common::event::EventReceiver;
 use crate::space_shooter::component::physics::Collider;
 use crate::space_shooter::system::BoundCollide;
+use crate::space_shooter::system::collision::BoundAxis;
 
 pub fn player_movement_system(manager: &mut EntityManager, ctx: &mut Context) -> GameResult<()> {
     let players = manager.get_entities(Tag::Player);
@@ -39,10 +40,14 @@ pub fn enemy_movement_system<E: EventReceiver<BoundCollide>>(manager: &mut Entit
     let collide_events = event.read();
 
     for enemy in enemies {
-        if collide_events.iter().any(|e| e.0 == enemy.id) {
-            let speed = enemy.try_get_component_mut::<Speed>()?;
-            speed.velocity = speed.velocity * -1f32;
+        if let Some(collision) = collide_events.iter().find(|e| e.0 == enemy.id) {
+            let velocity = &mut enemy.try_get_component_mut::<Speed>()?.velocity;
+            match collision.1 {
+                BoundAxis::X => velocity.x = velocity.x * -1f32,
+                BoundAxis::Y => velocity.y = velocity.y * -1f32
+            }
         }
+
         let speed = enemy.try_get_component::<Speed>()?.velocity;
         let transform = enemy.try_get_component_mut::<Transform>()?;
         transform.position = transform.position + (speed * dt.as_secs_f32());
