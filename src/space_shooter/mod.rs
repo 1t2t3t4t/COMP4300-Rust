@@ -1,9 +1,12 @@
+use std::fs::File;
 use crate::ui::render_fps_system;
 use ecs::manager::EntityManager;
-use ggez::event::EventHandler;
+use ggez::event::{EventHandler, KeyCode};
 use ggez::graphics::Color;
 use ggez::{Context, GameError};
+use ggez::input::keyboard::is_key_pressed;
 use crate::common::event::EventSystem;
+use crate::profiler;
 
 mod component;
 mod system;
@@ -44,7 +47,15 @@ impl EventHandler for SpaceGame {
         system::movement::player_movement_system(&mut self.entity_manager, ctx)?;
         system::movement::enemy_movement_system(&mut self.entity_manager, &mut self.event_system, ctx)?;
         system::movement::collider_follow_transform_system(&mut self.entity_manager)?;
-        system::collision::bound_collision_system(&mut self.entity_manager, &mut self.event_system)
+        system::collision::bound_collision_system(&mut self.entity_manager, &mut self.event_system)?;
+
+        if is_key_pressed(ctx, KeyCode::Space) {
+            if let Ok(report) = profiler().report().build() {
+                let file = File::create("flamegraph.svg").unwrap();
+                report.flamegraph(file).unwrap();
+            };
+        }
+        Ok(())
     }
 
     fn draw(&mut self, ctx: &mut Context) -> Result<(), GameError> {
