@@ -19,7 +19,7 @@ enum Tag {
 #[derive(Default)]
 pub struct SpaceGame {
     entity_manager: EntityManager,
-    setup: bool,
+    setup: bool
 }
 
 impl SpaceGame {
