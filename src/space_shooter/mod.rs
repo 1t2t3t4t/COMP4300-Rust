@@ -44,13 +44,16 @@ impl EventHandler for SpaceGame {
         system::movement::player_movement_system(&mut self.entity_manager, ctx)?;
         system::movement::enemy_movement_system(&mut self.entity_manager, &mut self.event_system, ctx)?;
         system::movement::collider_follow_transform_system(&mut self.entity_manager)?;
-        system::collision::bound_collision_system(&mut self.entity_manager, &mut self.event_system)
+        system::collision::bound_collision_system(&mut self.entity_manager, &mut self.event_system)?;
+        Ok(())
     }
 
     fn draw(&mut self, ctx: &mut Context) -> Result<(), GameError> {
         ggez::graphics::clear(ctx, Color::WHITE);
         system::render::render_shape_system(&mut self.entity_manager, ctx)?;
         render_fps_system(ctx)?;
-        ggez::graphics::present(ctx)
+        ggez::graphics::present(ctx);
+        ggez::timer::yield_now();
+        Ok(())
     }
 }
