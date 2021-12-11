@@ -12,4 +12,3 @@ member = ["./ecs"]
 ggez = "0.7.0"
 ecs = { path = "./ecs" }
 rand = "0.8.4"
-pprof = { version = "0.6.1", features = ["flamegraph"] }
