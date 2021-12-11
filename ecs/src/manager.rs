@@ -39,6 +39,10 @@ impl EntityManager {
         self.safe_insert_entity()
     }
 
+    pub fn get_all(&mut self) -> Vec<&mut Entity> {
+        self.entities.values_mut().collect()
+    }
+
     pub fn get_entity(&mut self, id: EntityId) -> Option<&mut Entity> {
         self.entities.get_mut(&id)
     }

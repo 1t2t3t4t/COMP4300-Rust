@@ -3,6 +3,7 @@ use ecs::manager::EntityManager;
 use ggez::event::EventHandler;
 use ggez::graphics::Color;
 use ggez::{Context, GameError};
+use crate::common::event::EventSystem;
 
 mod component;
 mod system;
@@ -19,6 +20,7 @@ enum Tag {
 #[derive(Default)]
 pub struct SpaceGame {
     entity_manager: EntityManager,
+    event_system: EventSystem,
     setup: bool
 }
 
@@ -40,7 +42,9 @@ impl EventHandler for SpaceGame {
 
         system::game::enemy_spawner(&mut self.entity_manager, ctx)?;
         system::movement::player_movement_system(&mut self.entity_manager, ctx)?;
-        system::movement::enemy_movement_system(&mut self.entity_manager, ctx)
+        system::movement::enemy_movement_system(&mut self.entity_manager, &mut self.event_system, ctx)?;
+        system::movement::collider_follow_transform_system(&mut self.entity_manager)?;
+        system::collision::bound_collision_system(&mut self.entity_manager, &mut self.event_system)
     }
 
     fn draw(&mut self, ctx: &mut Context) -> Result<(), GameError> {

@@ -15,6 +15,7 @@ use crate::space_shooter::component::constant::{
 use crate::space_shooter::component::game::Spawner;
 use rand::Rng;
 use crate::math::random::rand_element;
+use crate::space_shooter::component::physics::Collider;
 
 pub(crate) mod constant {
     use std::time::Duration;
@@ -57,6 +58,10 @@ pub fn create_enemy(manager: &mut EntityManager) -> &Entity {
         .add_component(Score(100))
         .add_component(Speed {
             velocity: Vec2::new(speed, speed),
+        })
+        .add_component(Collider {
+            center: Vec2::new(x_pos, y_pos),
+            radius: ENEMY_SIZE
         })
 }
 
