@@ -1,5 +1,5 @@
-use ecs::entity::EntityId;
 use crate::space_shooter::system::collision::BoundAxis;
+use ecs::entity::EntityId;
 
 pub mod collision;
 pub mod game;

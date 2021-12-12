@@ -9,11 +9,13 @@ use ecs::entity::Entity;
 use ecs::manager::EntityManager;
 use std::time::Duration;
 
-use crate::space_shooter::component::constant::{ENEMY_MAX_SPEED, ENEMY_MIN_SPEED, ENEMY_SIZE, ENEMY_SPAWN_INTERVAL, MAX_ENEMY_SPAWN};
-use crate::space_shooter::component::game::Spawner;
-use rand::Rng;
 use crate::math::random::rand_element;
+use crate::space_shooter::component::constant::{
+    ENEMY_MAX_SPEED, ENEMY_MIN_SPEED, ENEMY_SIZE, ENEMY_SPAWN_INTERVAL, MAX_ENEMY_SPAWN,
+};
+use crate::space_shooter::component::game::Spawner;
 use crate::space_shooter::component::physics::Collider;
+use rand::Rng;
 
 pub(crate) mod constant {
     use std::time::Duration;
@@ -60,7 +62,7 @@ pub fn create_enemy(manager: &mut EntityManager) -> &Entity {
         })
         .add_component(Collider {
             center: Vec2::new(x_pos, y_pos),
-            radius: ENEMY_SIZE
+            radius: ENEMY_SIZE,
         })
 }
 

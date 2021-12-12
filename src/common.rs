@@ -55,10 +55,13 @@ pub mod event {
 
     #[derive(Default, Debug)]
     pub struct EventSystem {
-        events: HashMap<TypeId, Vec<Box<dyn Any>>>
+        events: HashMap<TypeId, Vec<Box<dyn Any>>>,
     }
 
-    impl<T> EventSender<T> for EventSystem where T : Any {
+    impl<T> EventSender<T> for EventSystem
+    where
+        T: Any,
+    {
         fn send(&mut self, event: T) {
             let boxed = Box::new(event);
             if let Some(arr) = self.events.get_mut(&TypeId::of::<T>()) {
@@ -69,9 +72,13 @@ pub mod event {
         }
     }
 
-    impl<T> EventReceiver<T> for EventSystem where T : Any  {
+    impl<T> EventReceiver<T> for EventSystem
+    where
+        T: Any,
+    {
         fn read(&mut self) -> Vec<T> {
-            self.events.remove(&TypeId::of::<T>())
+            self.events
+                .remove(&TypeId::of::<T>())
                 .unwrap_or_default()
                 .into_iter()
                 .map(|e| *(e.downcast::<T>().unwrap()))

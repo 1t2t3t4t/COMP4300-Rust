@@ -1,14 +1,14 @@
 use ecs::manager::EntityManager;
 use ggez::{Context, GameResult};
 
+use crate::common::event::EventReceiver;
 use crate::common::TryGet;
 use crate::space_shooter::component::constant::PLAYER_SPEED;
 use crate::space_shooter::component::movement::Speed;
-use crate::{common::Transform, math::Vec2, space_shooter::Tag};
-use crate::common::event::EventReceiver;
 use crate::space_shooter::component::physics::Collider;
-use crate::space_shooter::system::BoundCollide;
 use crate::space_shooter::system::collision::BoundAxis;
+use crate::space_shooter::system::BoundCollide;
+use crate::{common::Transform, math::Vec2, space_shooter::Tag};
 
 pub fn player_movement_system(manager: &mut EntityManager, ctx: &mut Context) -> GameResult<()> {
     let players = manager.get_entities(Tag::Player);
@@ -34,7 +34,11 @@ pub fn player_movement_system(manager: &mut EntityManager, ctx: &mut Context) ->
     Ok(())
 }
 
-pub fn enemy_movement_system<E: EventReceiver<BoundCollide>>(manager: &mut EntityManager, event: &mut E, ctx: &mut Context) -> GameResult<()> {
+pub fn enemy_movement_system<E: EventReceiver<BoundCollide>>(
+    manager: &mut EntityManager,
+    event: &mut E,
+    ctx: &mut Context,
+) -> GameResult<()> {
     let enemies = manager.get_entities(Tag::Enemy);
     let dt = ggez::timer::delta(ctx);
     let collide_events = event.read();
@@ -43,8 +47,8 @@ pub fn enemy_movement_system<E: EventReceiver<BoundCollide>>(manager: &mut Entit
         if let Some(collision) = collide_events.iter().find(|e| e.0 == enemy.id) {
             let velocity = &mut enemy.try_get_component_mut::<Speed>()?.velocity;
             match collision.1 {
-                BoundAxis::X => velocity.x = velocity.x * -1f32,
-                BoundAxis::Y => velocity.y = velocity.y * -1f32
+                BoundAxis::X => velocity.x *= -1f32,
+                BoundAxis::Y => velocity.y *= -1f32,
             }
         }
 
