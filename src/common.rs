@@ -5,12 +5,12 @@ use ggez::{GameError, GameResult};
 
 use crate::math::Vec2;
 
-pub struct Transform {
+pub struct GameTransform {
     pub position: Vec2,
     pub rotation: Vec2,
 }
 
-impl Transform {
+impl GameTransform {
     pub const fn new(position: Vec2, rotation: Vec2) -> Self {
         Self { position, rotation }
     }

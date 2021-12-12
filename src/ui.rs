@@ -5,7 +5,7 @@ use ggez::{
 };
 
 use crate::{
-    common::{Transform, TryGet},
+    common::{GameTransform, TryGet},
     game::Tag,
     math::Vec2,
     WINDOWS_HEIGHT, WINDOWS_WIDTH,
@@ -27,7 +27,7 @@ pub fn render_ui_system(manager: &mut EntityManager, ctx: &mut Context) -> GameR
         text.set_font(Font::default(), PxScale::from(button.size));
 
         let width = (WINDOWS_WIDTH / 2f32) - (text.width(ctx) / 2f32);
-        let transform = Transform::new(Vec2::new(width, y_pos), Vec2::zero());
+        let transform = GameTransform::new(Vec2::new(width, y_pos), Vec2::zero());
         let position: [f32; 2] = transform.position.into();
 
         let rect = Rect::new(

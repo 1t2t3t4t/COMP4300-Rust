@@ -1,4 +1,4 @@
-use crate::common::Transform;
+use crate::common::GameTransform;
 use crate::space_shooter::component::general::Lifespan;
 use crate::space_shooter::component::shape::{Geometry, Shape};
 use ecs::entity::Entity;
@@ -26,7 +26,7 @@ fn lifespan_color(lifespan: Option<&Lifespan>, mut color: Color) -> Color {
 
 fn get_drawable(
     shape: &Shape,
-    transform: &Transform,
+    transform: &GameTransform,
     ctx: &mut Context,
     draw_mode: DrawMode,
     color: Color,
@@ -54,7 +54,7 @@ fn render_shapes(entities: &[&mut Entity], ctx: &mut Context) -> GameResult<()> 
     for entity in entities {
         if let (Some(shape), Some(transform)) = (
             entity.get_component::<Shape>(),
-            entity.get_component::<Transform>(),
+            entity.get_component::<GameTransform>(),
         ) {
             let lifespan = entity.get_component::<Lifespan>();
             let shape_color = lifespan_color(lifespan, Color::BLACK);

@@ -1,5 +1,5 @@
 use crate::common::event::EventSender;
-use crate::common::{Transform, TryGet};
+use crate::common::{GameTransform, TryGet};
 use crate::space_shooter::component::physics::Collider;
 use crate::space_shooter::system::BoundCollide;
 use crate::space_shooter::Tag;
@@ -33,7 +33,7 @@ pub fn bound_collision_system<E: EventSender<BoundCollide>>(
         };
 
         if let Some((bound, reset_pos)) = detect {
-            let position = &mut enemy.try_get_component_mut::<Transform>()?.position;
+            let position = &mut enemy.try_get_component_mut::<GameTransform>()?.position;
             match bound {
                 BoundAxis::X => position.x = reset_pos,
                 BoundAxis::Y => position.y = reset_pos,

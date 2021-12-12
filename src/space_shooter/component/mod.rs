@@ -1,4 +1,4 @@
-use crate::common::Transform;
+use crate::common::GameTransform;
 use crate::math::Vec2;
 use crate::space_shooter::component::general::{Lifespan, Score};
 use crate::space_shooter::component::movement::Speed;
@@ -42,7 +42,7 @@ pub(crate) mod constant {
     pub const ENEMY_SPAWN_INTERVAL: Duration = Duration::from_secs(3);
 }
 
-pub fn create_bullet(manager: &mut EntityManager, speed: Speed, transform: Transform) -> &Entity {
+pub fn create_bullet(manager: &mut EntityManager, speed: Speed, transform: GameTransform) -> &Entity {
     manager
         .add_tag(Tag::Bullet)
         .add_component(Shape {
@@ -64,7 +64,7 @@ pub fn create_player(manager: &mut EntityManager) -> &Entity {
             geometry: Geometry::Rectangle,
             radius: 32f32,
         })
-        .add_component(Transform::new(
+        .add_component(GameTransform::new(
             Vec2::new(WINDOWS_WIDTH / 2f32 - 32f32, WINDOWS_HEIGHT / 2f32 - 32f32),
             Vec2::zero(),
         ))
@@ -82,7 +82,7 @@ pub fn create_enemy(manager: &mut EntityManager) -> &Entity {
             geometry: shape,
             radius: ENEMY_SIZE,
         })
-        .add_component(Transform::new(Vec2::new(x_pos, y_pos), Vec2::zero()))
+        .add_component(GameTransform::new(Vec2::new(x_pos, y_pos), Vec2::zero()))
         .add_component(Score(100))
         .add_component(Speed {
             velocity: Vec2::new(speed, speed),

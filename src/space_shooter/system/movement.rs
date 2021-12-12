@@ -8,7 +8,7 @@ use crate::space_shooter::component::movement::Speed;
 use crate::space_shooter::component::physics::Collider;
 use crate::space_shooter::system::collision::BoundAxis;
 use crate::space_shooter::system::BoundCollide;
-use crate::{common::Transform, math::Vec2, space_shooter::Tag};
+use crate::{common::GameTransform, math::Vec2, space_shooter::Tag};
 
 pub fn player_movement_system(manager: &mut EntityManager, ctx: &mut Context) -> GameResult<()> {
     let players = manager.get_entities(Tag::Player);
@@ -27,7 +27,7 @@ pub fn player_movement_system(manager: &mut EntityManager, ctx: &mut Context) ->
         if ggez::input::keyboard::is_key_pressed(ctx, ggez::event::KeyCode::D) {
             dir.x += 1f32;
         }
-        let transform = player.try_get_component_mut::<Transform>()?;
+        let transform = player.try_get_component_mut::<GameTransform>()?;
         transform.position =
             transform.position + (dir.normalized() * PLAYER_SPEED * dt.as_secs_f32());
     }
@@ -53,7 +53,7 @@ pub fn enemy_movement_system<E: EventReceiver<BoundCollide>>(
         }
 
         let speed = enemy.try_get_component::<Speed>()?.velocity;
-        let transform = enemy.try_get_component_mut::<Transform>()?;
+        let transform = enemy.try_get_component_mut::<GameTransform>()?;
         transform.position = transform.position + (speed * dt.as_secs_f32());
     }
     Ok(())
@@ -65,7 +65,7 @@ pub fn bullet_movement_system(manager: &mut EntityManager, ctx: &mut Context) ->
     for bullet in bullets {
         if let Some(speed) = bullet.get_component::<Speed>() {
             let speed = speed.velocity;
-            let transform = bullet.try_get_component_mut::<Transform>()?;
+            let transform = bullet.try_get_component_mut::<GameTransform>()?;
             transform.position = transform.position + (speed * dt.as_secs_f32());
         }
     }
@@ -75,7 +75,7 @@ pub fn bullet_movement_system(manager: &mut EntityManager, ctx: &mut Context) ->
 pub fn collider_follow_transform_system(manager: &mut EntityManager) -> GameResult<()> {
     let entities = manager.get_all();
     for entity in entities {
-        if let Some(transform) = entity.get_component::<Transform>() {
+        if let Some(transform) = entity.get_component::<GameTransform>() {
             let updated_pos = transform.position;
             if let Some(collider) = entity.get_component_mut::<Collider>() {
                 collider.center = updated_pos;

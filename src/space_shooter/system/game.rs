@@ -1,4 +1,4 @@
-use crate::common::{Transform, TryGet};
+use crate::common::{GameTransform, TryGet};
 use crate::space_shooter::component;
 use crate::space_shooter::component::game::Spawner;
 use crate::space_shooter::Tag;
@@ -43,10 +43,10 @@ pub fn shoot_system(manager: &mut EntityManager, ctx: &mut Context) -> GameResul
 
         if let Some(player) = manager.get_entities(Tag::Player).first_mut() {
             let mouse_pos: Vec2 = ggez::input::mouse::position(ctx).into();
-            let player_pos = player.try_get_component::<Transform>()?.position;
+            let player_pos = player.try_get_component::<GameTransform>()?.position;
             let shoot_dir = mouse_pos - player_pos;
             let velocity = shoot_dir.normalized() * BULLET_SPEED;
-            let transform = Transform {
+            let transform = GameTransform {
                 position: player_pos,
                 rotation: Vec2::zero(),
             };
