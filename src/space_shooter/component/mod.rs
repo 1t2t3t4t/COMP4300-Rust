@@ -10,7 +10,10 @@ use ecs::manager::EntityManager;
 use std::time::Duration;
 
 use crate::math::random::rand_element;
-use crate::space_shooter::component::constant::{BULLET_LIFESPAN, BULLET_SIZE, BULLET_SPAWN_INTERVAL, ENEMY_MAX_SPEED, ENEMY_MIN_SPEED, ENEMY_SIZE, ENEMY_SPAWN_INTERVAL, MAX_ENEMY_SPAWN};
+use crate::space_shooter::component::constant::{
+    BULLET_LIFESPAN, BULLET_SIZE, BULLET_SPAWN_INTERVAL, ENEMY_MAX_SPEED, ENEMY_MIN_SPEED,
+    ENEMY_SIZE, ENEMY_SPAWN_INTERVAL, MAX_ENEMY_SPAWN,
+};
 use crate::space_shooter::component::game::Spawner;
 use crate::space_shooter::component::physics::Collider;
 use rand::Rng;
@@ -99,10 +102,9 @@ pub fn create_enemy_spawner(manager: &mut EntityManager) -> &Entity {
 }
 
 pub fn create_bullet_spawner(manager: &mut EntityManager) -> &Entity {
-    manager.add_tag(Tag::Bullet)
-        .add_component(Spawner {
-            max: usize::MAX,
-            interval: BULLET_SPAWN_INTERVAL,
-            last_spawned_duration: Duration::from_secs(0),
-        })
+    manager.add_tag(Tag::Bullet).add_component(Spawner {
+        max: usize::MAX,
+        interval: BULLET_SPAWN_INTERVAL,
+        last_spawned_duration: Duration::from_secs(0),
+    })
 }

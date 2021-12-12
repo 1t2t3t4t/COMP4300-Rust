@@ -9,7 +9,6 @@ use crate::space_shooter::component::physics::Collider;
 use crate::space_shooter::system::collision::BoundAxis;
 use crate::space_shooter::system::BoundCollide;
 use crate::{common::Transform, math::Vec2, space_shooter::Tag};
-use crate::space_shooter::component::game::Spawner;
 
 pub fn player_movement_system(manager: &mut EntityManager, ctx: &mut Context) -> GameResult<()> {
     let players = manager.get_entities(Tag::Player);
