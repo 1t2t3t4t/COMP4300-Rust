@@ -1,6 +1,6 @@
 use crate::common::Transform;
 use crate::math::Vec2;
-use crate::space_shooter::component::general::Score;
+use crate::space_shooter::component::general::{Lifespan, Score};
 use crate::space_shooter::component::movement::Speed;
 use crate::space_shooter::component::shape::{Geometry, Shape};
 use crate::space_shooter::Tag;
@@ -10,7 +10,10 @@ use ecs::manager::EntityManager;
 use std::time::Duration;
 
 use crate::math::random::rand_element;
-use crate::space_shooter::component::constant::{BULLET_SIZE, ENEMY_MAX_SPEED, ENEMY_MIN_SPEED, ENEMY_SIZE, ENEMY_SPAWN_INTERVAL, MAX_ENEMY_SPAWN};
+use crate::space_shooter::component::constant::{
+    BULLET_LIFESPAN, BULLET_SIZE, ENEMY_MAX_SPEED, ENEMY_MIN_SPEED, ENEMY_SIZE,
+    ENEMY_SPAWN_INTERVAL, MAX_ENEMY_SPAWN,
+};
 use crate::space_shooter::component::game::Spawner;
 use crate::space_shooter::component::physics::Collider;
 use rand::Rng;
@@ -20,8 +23,9 @@ pub(crate) mod constant {
 
     pub const PLAYER_SPEED: f32 = 300f32;
 
-    pub const BULLET_SIZE: f32 = 8f32;
+    pub const BULLET_SIZE: f32 = 12f32;
     pub const BULLET_SPEED: f32 = 300f32;
+    pub const BULLET_LIFESPAN: Duration = Duration::from_millis(1500);
 
     pub const ENEMY_MIN_SPEED: f32 = 100f32;
     pub const ENEMY_MAX_SPEED: f32 = 200f32;
@@ -32,13 +36,18 @@ pub(crate) mod constant {
 }
 
 pub fn create_bullet(manager: &mut EntityManager, speed: Speed, transform: Transform) -> &Entity {
-    manager.add_tag(Tag::Bullet)
+    manager
+        .add_tag(Tag::Bullet)
         .add_component(Shape {
             geometry: Geometry::Circle,
-            radius: BULLET_SIZE
+            radius: BULLET_SIZE,
         })
         .add_component(speed)
         .add_component(transform)
+        .add_component(Lifespan {
+            time_left: BULLET_LIFESPAN,
+            total_time: BULLET_LIFESPAN,
+        })
 }
 
 pub fn create_player(manager: &mut EntityManager) -> &Entity {
@@ -116,7 +125,13 @@ pub mod physics {
 }
 
 pub mod general {
+    use std::time::Duration;
+
     pub struct Score(pub i32);
+    pub struct Lifespan {
+        pub time_left: Duration,
+        pub total_time: Duration,
+    }
 }
 
 pub mod game {

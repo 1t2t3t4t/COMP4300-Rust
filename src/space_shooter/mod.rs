@@ -40,6 +40,7 @@ impl EventHandler for SpaceGame {
         }
         self.entity_manager.update();
 
+        system::game::lifespan_system(&mut self.entity_manager, ctx)?;
         system::game::enemy_spawner(&mut self.entity_manager, ctx)?;
 
         system::movement::player_movement_system(&mut self.entity_manager, ctx)?;

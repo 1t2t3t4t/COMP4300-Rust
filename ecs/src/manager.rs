@@ -72,10 +72,16 @@ impl EntityManager {
             .collect()
     }
 
-    pub fn query_entities_mut<T: Any>(&mut self) -> Vec<&mut T> {
+    pub fn query_entities_mut<T: Any>(&mut self) -> Vec<(EntityId, &mut T)> {
         self.entities
             .values_mut()
-            .filter_map(|e| e.get_component_mut::<T>())
+            .filter_map(|e| {
+                let id = e.id;
+                match e.get_component_mut::<T>() {
+                    Some(component) => Some((id, component)),
+                    _ => None,
+                }
+            })
             .collect()
     }
 

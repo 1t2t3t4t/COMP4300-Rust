@@ -5,11 +5,14 @@ use crate::space_shooter::Tag;
 use ecs::manager::EntityManager;
 use ggez::{Context, GameResult};
 use std::time::Duration;
-use ggez::event::MouseButton;
+
 use crate::math::Vec2;
 use crate::space_shooter::component::constant::BULLET_SPEED;
 use crate::space_shooter::component::create_bullet;
+use crate::space_shooter::component::general::Lifespan;
 use crate::space_shooter::component::movement::Speed;
+use ecs::entity::EntityId;
+use ggez::event::MouseButton;
 
 pub fn enemy_spawner(manager: &mut EntityManager, ctx: &mut Context) -> GameResult<()> {
     let enemy_count = manager.get_entities(Tag::Enemy).len();
@@ -37,10 +40,30 @@ pub fn shoot_system(manager: &mut EntityManager, ctx: &mut Context) -> GameResul
             let velocity = shoot_dir.normalized() * BULLET_SPEED;
             let transform = Transform {
                 position: player_pos,
-                rotation: Vec2::zero()
+                rotation: Vec2::zero(),
             };
             create_bullet(manager, Speed { velocity }, transform);
         }
     }
+    Ok(())
+}
+
+pub fn lifespan_system(manager: &mut EntityManager, ctx: &mut Context) -> GameResult<()> {
+    let lifespans = manager.query_entities_mut::<Lifespan>();
+    let dt = ggez::timer::delta(ctx);
+    let mut to_kill_ids = Vec::<EntityId>::with_capacity(lifespans.len());
+
+    for (id, life) in lifespans {
+        if let Some(subtracted) = life.time_left.checked_sub(dt) {
+            life.time_left = subtracted;
+        } else {
+            to_kill_ids.push(id);
+        }
+    }
+
+    for id in to_kill_ids {
+        manager.get_entity(id).unwrap().destroy();
+    }
+
     Ok(())
 }
