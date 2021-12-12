@@ -18,6 +18,12 @@ use crate::space_shooter::component::game::Spawner;
 use crate::space_shooter::component::physics::Collider;
 use rand::Rng;
 
+pub mod game;
+pub mod general;
+pub mod movement;
+pub mod physics;
+pub mod shape;
+
 pub(crate) mod constant {
     use std::time::Duration;
 
@@ -92,54 +98,4 @@ pub fn create_enemy_spawner(manager: &mut EntityManager) -> &Entity {
         interval: ENEMY_SPAWN_INTERVAL,
         last_spawned_duration: Duration::from_secs(0),
     })
-}
-
-pub mod shape {
-    #[derive(Copy, Clone)]
-    pub enum Geometry {
-        Rectangle,
-        Circle,
-    }
-
-    pub struct Shape {
-        pub geometry: Geometry,
-        pub radius: f32,
-    }
-}
-
-pub mod movement {
-    use crate::math::Vec2;
-
-    pub struct Speed {
-        pub velocity: Vec2,
-    }
-}
-
-pub mod physics {
-    use crate::math::Vec2;
-
-    pub struct Collider {
-        pub center: Vec2,
-        pub radius: f32,
-    }
-}
-
-pub mod general {
-    use std::time::Duration;
-
-    pub struct Score(pub i32);
-    pub struct Lifespan {
-        pub time_left: Duration,
-        pub total_time: Duration,
-    }
-}
-
-pub mod game {
-    use std::time::Duration;
-
-    pub struct Spawner {
-        pub max: usize,
-        pub interval: Duration,
-        pub last_spawned_duration: Duration,
-    }
 }
