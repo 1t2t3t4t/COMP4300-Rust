@@ -59,7 +59,7 @@ impl EventHandler for SpaceGame {
         ggez::graphics::clear(ctx, Color::WHITE);
         system::render::render_shape_system(&mut self.entity_manager, ctx)?;
         render_fps_system(ctx)?;
-        ggez::graphics::present(ctx);
+        ggez::graphics::present(ctx)?;
         ggez::timer::yield_now();
         Ok(())
     }
