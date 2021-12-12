@@ -9,6 +9,7 @@ use crate::space_shooter::component::physics::Collider;
 use crate::space_shooter::system::collision::BoundAxis;
 use crate::space_shooter::system::BoundCollide;
 use crate::{common::Transform, math::Vec2, space_shooter::Tag};
+use crate::space_shooter::component::game::Spawner;
 
 pub fn player_movement_system(manager: &mut EntityManager, ctx: &mut Context) -> GameResult<()> {
     let players = manager.get_entities(Tag::Player);
@@ -63,9 +64,11 @@ pub fn bullet_movement_system(manager: &mut EntityManager, ctx: &mut Context) ->
     let bullets = manager.get_entities(Tag::Bullet);
     let dt = ggez::timer::delta(ctx);
     for bullet in bullets {
-        let speed = bullet.try_get_component::<Speed>()?.velocity;
-        let transform = bullet.try_get_component_mut::<Transform>()?;
-        transform.position = transform.position + (speed * dt.as_secs_f32());
+        if let Some(speed) = bullet.get_component::<Speed>() {
+            let speed = speed.velocity;
+            let transform = bullet.try_get_component_mut::<Transform>()?;
+            transform.position = transform.position + (speed * dt.as_secs_f32());
+        }
     }
     Ok(())
 }

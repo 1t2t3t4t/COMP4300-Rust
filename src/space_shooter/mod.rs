@@ -30,6 +30,7 @@ impl SpaceGame {
         component::create_player(&mut self.entity_manager);
         component::create_enemy(&mut self.entity_manager);
         component::create_enemy_spawner(&mut self.entity_manager);
+        component::create_bullet_spawner(&mut self.entity_manager);
     }
 }
 

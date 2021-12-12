@@ -6,9 +6,14 @@ use ecs::manager::EntityManager;
 use ggez::graphics::{Color, DrawMode, Drawable, MeshBuilder, Rect};
 use ggez::{Context, GameResult};
 
+fn ease_in(prog: f32) -> f32 {
+    if prog == 0f32 { 0f32 } else { 2f32.powf(10f32 * prog - 10f32) }
+}
+
 fn lifespan_color(lifespan: Option<&Lifespan>, mut color: Color) -> Color {
     if let Some(lifespan) = lifespan {
-        color.a = lifespan.time_left.as_secs_f32() / lifespan.total_time.as_secs_f32();
+        let prog = 1f32 - (lifespan.time_left.as_secs_f32() / lifespan.total_time.as_secs_f32());
+        color.a = 1f32 - ease_in(prog);
     }
 
     color

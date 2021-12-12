@@ -13,6 +13,7 @@ use crate::space_shooter::component::general::Lifespan;
 use crate::space_shooter::component::movement::Speed;
 use ecs::entity::EntityId;
 use ggez::event::MouseButton;
+use crate::space_shooter::Tag::Bullet;
 
 pub fn enemy_spawner(manager: &mut EntityManager, ctx: &mut Context) -> GameResult<()> {
     let enemy_count = manager.get_entities(Tag::Enemy).len();
@@ -32,7 +33,17 @@ pub fn enemy_spawner(manager: &mut EntityManager, ctx: &mut Context) -> GameResu
 }
 
 pub fn shoot_system(manager: &mut EntityManager, ctx: &mut Context) -> GameResult<()> {
-    if ggez::input::mouse::button_pressed(ctx, MouseButton::Left) {
+    let mut query = manager.query_entities_tag_mut::<Spawner, _>(Tag::Bullet);
+    let spawner = query
+        .first_mut()
+        .unwrap();
+    let dt = ggez::timer::delta(ctx);
+    let can_shoot = spawner.last_spawned_duration >= spawner.interval;
+    spawner.last_spawned_duration += dt;
+
+    if can_shoot && ggez::input::mouse::button_pressed(ctx, MouseButton::Left) {
+        spawner.last_spawned_duration = Duration::from_secs(0);
+
         if let Some(player) = manager.get_entities(Tag::Player).first_mut() {
             let mouse_pos: Vec2 = ggez::input::mouse::position(ctx).into();
             let player_pos = player.try_get_component::<Transform>()?.position;
