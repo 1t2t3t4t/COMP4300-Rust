@@ -10,9 +10,7 @@ use ecs::manager::EntityManager;
 use std::time::Duration;
 
 use crate::math::random::rand_element;
-use crate::space_shooter::component::constant::{
-    ENEMY_MAX_SPEED, ENEMY_MIN_SPEED, ENEMY_SIZE, ENEMY_SPAWN_INTERVAL, MAX_ENEMY_SPAWN,
-};
+use crate::space_shooter::component::constant::{BULLET_SIZE, ENEMY_MAX_SPEED, ENEMY_MIN_SPEED, ENEMY_SIZE, ENEMY_SPAWN_INTERVAL, MAX_ENEMY_SPAWN};
 use crate::space_shooter::component::game::Spawner;
 use crate::space_shooter::component::physics::Collider;
 use rand::Rng;
@@ -20,7 +18,10 @@ use rand::Rng;
 pub(crate) mod constant {
     use std::time::Duration;
 
-    pub const PLAYER_SPEED: f32 = 150f32;
+    pub const PLAYER_SPEED: f32 = 300f32;
+
+    pub const BULLET_SIZE: f32 = 8f32;
+    pub const BULLET_SPEED: f32 = 300f32;
 
     pub const ENEMY_MIN_SPEED: f32 = 100f32;
     pub const ENEMY_MAX_SPEED: f32 = 200f32;
@@ -28,6 +29,16 @@ pub(crate) mod constant {
 
     pub const MAX_ENEMY_SPAWN: usize = 32;
     pub const ENEMY_SPAWN_INTERVAL: Duration = Duration::from_secs(3);
+}
+
+pub fn create_bullet(manager: &mut EntityManager, speed: Speed, transform: Transform) -> &Entity {
+    manager.add_tag(Tag::Bullet)
+        .add_component(Shape {
+            geometry: Geometry::Circle,
+            radius: BULLET_SIZE
+        })
+        .add_component(speed)
+        .add_component(transform)
 }
 
 pub fn create_player(manager: &mut EntityManager) -> &Entity {
@@ -77,7 +88,6 @@ pub fn create_enemy_spawner(manager: &mut EntityManager) -> &Entity {
 pub mod shape {
     #[derive(Copy, Clone)]
     pub enum Geometry {
-        Triangle,
         Rectangle,
         Circle,
     }

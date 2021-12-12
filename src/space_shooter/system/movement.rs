@@ -59,6 +59,17 @@ pub fn enemy_movement_system<E: EventReceiver<BoundCollide>>(
     Ok(())
 }
 
+pub fn bullet_movement_system(manager: &mut EntityManager, ctx: &mut Context) -> GameResult<()> {
+    let bullets = manager.get_entities(Tag::Bullet);
+    let dt = ggez::timer::delta(ctx);
+    for bullet in bullets {
+        let speed = bullet.try_get_component::<Speed>()?.velocity;
+        let transform = bullet.try_get_component_mut::<Transform>()?;
+        transform.position = transform.position + (speed * dt.as_secs_f32());
+    }
+    Ok(())
+}
+
 pub fn collider_follow_transform_system(manager: &mut EntityManager) -> GameResult<()> {
     let entities = manager.get_all();
     for entity in entities {

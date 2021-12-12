@@ -1,6 +1,7 @@
 use std::ops::{Add, Mul, Sub};
 
 use ggez::graphics::DrawParam;
+use ggez::mint::Point2;
 
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct Vec2 {
@@ -37,6 +38,12 @@ impl Vec2 {
         } else {
             Vec2::new(self.x / length, self.y / length)
         }
+    }
+}
+
+impl From<Point2<f32>> for Vec2 {
+    fn from(p: Point2<f32>) -> Self {
+        Self { x: p.x, y: p.y }
     }
 }
 

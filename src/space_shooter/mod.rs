@@ -41,6 +41,7 @@ impl EventHandler for SpaceGame {
         self.entity_manager.update();
 
         system::game::enemy_spawner(&mut self.entity_manager, ctx)?;
+
         system::movement::player_movement_system(&mut self.entity_manager, ctx)?;
         system::movement::enemy_movement_system(
             &mut self.entity_manager,
@@ -48,6 +49,10 @@ impl EventHandler for SpaceGame {
             ctx,
         )?;
         system::movement::collider_follow_transform_system(&mut self.entity_manager)?;
+        system::movement::bullet_movement_system(&mut self.entity_manager, ctx)?;
+
+        system::game::shoot_system(&mut self.entity_manager, ctx)?;
+
         system::collision::bound_collision_system(
             &mut self.entity_manager,
             &mut self.event_system,
