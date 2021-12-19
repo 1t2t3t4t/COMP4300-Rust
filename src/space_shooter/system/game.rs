@@ -1,8 +1,10 @@
 use crate::common::{GameTransform, TryGet};
 use crate::space_shooter::component;
 use crate::space_shooter::component::game::Spawner;
+use crate::space_shooter::component::physics::Collider;
 use crate::space_shooter::Tag;
 use ecs::manager::EntityManager;
+use ggez::graphics::{Color, DrawMode};
 use ggez::{Context, GameResult};
 use std::time::Duration;
 
@@ -72,6 +74,32 @@ pub fn lifespan_system(manager: &mut EntityManager, ctx: &mut Context) -> GameRe
     for id in to_kill_ids {
         manager.get_entity(id).unwrap().destroy();
     }
+
+    Ok(())
+}
+
+pub fn aim_system(manager: &mut EntityManager, ctx: &mut Context) -> GameResult<()> {
+    let entity = manager.get_entities(Tag::Player);
+    let player = entity.first().unwrap();
+    let collider = player.try_get_component::<Collider>()?;
+
+    let mouse_pos: Vec2 = ggez::input::mouse::position(ctx).into();
+    let aim_pos = Vec2::new(
+        mouse_pos.x.clamp(
+            collider.center.x - collider.radius,
+            collider.center.x + collider.radius,
+        ),
+        mouse_pos.y.clamp(
+            collider.center.y - collider.radius,
+            collider.center.y + collider.radius,
+        ),
+    );
+
+    let aim_circle = ggez::graphics::MeshBuilder::new()
+        .circle(DrawMode::fill(), aim_pos, 8f32, 0.1, Color::GREEN)?
+        .build(ctx)?;
+
+    ggez::graphics::draw(ctx, &aim_circle, ([0f32, 0f32],))?;
 
     Ok(())
 }

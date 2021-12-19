@@ -42,7 +42,11 @@ pub(crate) mod constant {
     pub const ENEMY_SPAWN_INTERVAL: Duration = Duration::from_secs(3);
 }
 
-pub fn create_bullet(manager: &mut EntityManager, speed: Speed, transform: GameTransform) -> &Entity {
+pub fn create_bullet(
+    manager: &mut EntityManager,
+    speed: Speed,
+    transform: GameTransform,
+) -> &Entity {
     manager
         .add_tag(Tag::Bullet)
         .add_component(Shape {
@@ -68,6 +72,10 @@ pub fn create_player(manager: &mut EntityManager) -> &Entity {
             Vec2::new(WINDOWS_WIDTH / 2f32 - 32f32, WINDOWS_HEIGHT / 2f32 - 32f32),
             Vec2::zero(),
         ))
+        .add_component(Collider {
+            center: Vec2::new(WINDOWS_WIDTH / 2f32 - 32f32, WINDOWS_HEIGHT / 2f32 - 32f32),
+            radius: 32f32,
+        })
 }
 
 pub fn create_enemy(manager: &mut EntityManager) -> &Entity {

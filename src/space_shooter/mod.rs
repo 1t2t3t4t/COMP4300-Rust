@@ -64,8 +64,11 @@ impl EventHandler for SpaceGame {
 
     fn draw(&mut self, ctx: &mut Context) -> Result<(), GameError> {
         ggez::graphics::clear(ctx, Color::WHITE);
+
         system::render::render_shape_system(&mut self.entity_manager, ctx)?;
         render_fps_system(ctx)?;
+        system::game::aim_system(&mut self.entity_manager, ctx)?;
+
         ggez::graphics::present(ctx)?;
         ggez::timer::yield_now();
         Ok(())
