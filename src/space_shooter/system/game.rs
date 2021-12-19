@@ -1,6 +1,7 @@
 use crate::common::{GameTransform, TryGet};
+use crate::math::collision::BoxCollision;
 use crate::space_shooter::component;
-use crate::space_shooter::component::game::Spawner;
+use crate::space_shooter::component::game::{Spawner, Scoreboard};
 use crate::space_shooter::component::physics::Collider;
 use crate::space_shooter::Tag;
 use ecs::manager::EntityManager;
@@ -8,10 +9,10 @@ use ggez::graphics::{Color, DrawMode};
 use ggez::{Context, GameResult};
 use std::time::Duration;
 
-use crate::math::Vec2;
+use crate::math::{self, Vec2};
 use crate::space_shooter::component::constant::BULLET_SPEED;
 use crate::space_shooter::component::create_bullet;
-use crate::space_shooter::component::general::Lifespan;
+use crate::space_shooter::component::general::{Lifespan, Score};
 use crate::space_shooter::component::movement::Speed;
 use ecs::entity::EntityId;
 use ggez::event::MouseButton;
@@ -100,6 +101,44 @@ pub fn aim_system(manager: &mut EntityManager, ctx: &mut Context) -> GameResult<
         .build(ctx)?;
 
     ggez::graphics::draw(ctx, &aim_circle, ([0f32, 0f32],))?;
+
+    Ok(())
+}
+
+pub fn kill_enemy_system(manager: &mut EntityManager) -> GameResult<()> {
+    let bullets = manager
+        .get_entities(Tag::Bullet)
+        .into_iter()
+        .filter_map(|b| match b.try_get_component::<Collider>() {
+            Ok(&c) => Some((b.id, c)),
+            _ => None,
+        })
+        .collect::<Vec<(EntityId, Collider)>>();
+
+    let enemies = manager.get_entities(Tag::Enemy);
+    let mut bullet_to_destory = Vec::<EntityId>::new();
+    let mut sum_score = 0;
+
+    for enemy in enemies {
+        let &enemy_collider = enemy.try_get_component::<Collider>()?;
+        if let Some(collide_bullet) = bullets
+            .iter()
+            .find(|b| math::collision::collide_aabb(&enemy_collider.into(), &b.1.into()))
+        {
+            enemy.destroy();
+            bullet_to_destory.push(collide_bullet.0);
+            sum_score += enemy.try_get_component::<Score>()?.0;
+        }
+    }
+
+    for id in bullet_to_destory {
+        if let Some(entity) = manager.get_entity(id) {
+            entity.destroy();
+        }
+    }
+
+    let mut scoreboard = manager.query_entities_mut::<Scoreboard>();
+    scoreboard.first_mut().unwrap().1.current_score += sum_score;
 
     Ok(())
 }

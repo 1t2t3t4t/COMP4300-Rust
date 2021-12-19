@@ -7,5 +7,5 @@ pub struct Spawner {
 }
 
 pub struct Scoreboard {
-    pub current_score: i32
+    pub current_score: i32,
 }

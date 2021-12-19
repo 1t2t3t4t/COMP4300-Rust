@@ -104,3 +104,25 @@ pub mod random {
         elements[idx]
     }
 }
+
+pub mod collision {
+    use super::Vec2;
+
+    pub struct BoxCollision {
+        pos: Vec2,
+        size: Vec2,
+    }
+
+    impl BoxCollision {
+        pub fn new(pos: Vec2, size: Vec2) -> Self {
+            Self { pos, size }
+        }
+    }
+
+    pub fn collide_aabb(a: &BoxCollision, b: &BoxCollision) -> bool {
+        !(a.pos.x > b.pos.x + b.size.x
+            || a.pos.x + a.size.x < b.pos.x
+            || a.pos.y > b.pos.y + b.size.y
+            || a.pos.y + a.size.y < b.pos.y)
+    }
+}

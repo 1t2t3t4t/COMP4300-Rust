@@ -55,6 +55,10 @@ pub fn create_bullet(
             geometry: Geometry::Circle,
             radius: BULLET_SIZE,
         })
+        .add_component(Collider {
+            center: transform.position,
+            radius: BULLET_SIZE
+        })
         .add_component(speed)
         .add_component(transform)
         .add_component(Lifespan {
@@ -120,6 +124,7 @@ pub fn create_bullet_spawner(manager: &mut EntityManager) -> &Entity {
 }
 
 pub fn create_score_board(manager: &mut EntityManager) -> &Entity {
-    manager.add_tag(Tag::Ui)
+    manager
+        .add_tag(Tag::Ui)
         .add_component(Scoreboard { current_score: 0 })
 }

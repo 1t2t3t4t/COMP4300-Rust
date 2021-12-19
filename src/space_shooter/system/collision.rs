@@ -12,7 +12,7 @@ pub enum BoundAxis {
     Y,
 }
 
-pub fn bound_collision_system<E: EventSender<BoundCollide>>(
+pub fn windows_bound_collision_system<E: EventSender<BoundCollide>>(
     manager: &mut EntityManager,
     event_system: &mut E,
 ) -> GameResult<()> {
