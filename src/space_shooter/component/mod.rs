@@ -18,6 +18,8 @@ use crate::space_shooter::component::game::Spawner;
 use crate::space_shooter::component::physics::Collider;
 use rand::Rng;
 
+use self::game::Scoreboard;
+
 pub mod game;
 pub mod general;
 pub mod movement;
@@ -115,4 +117,9 @@ pub fn create_bullet_spawner(manager: &mut EntityManager) -> &Entity {
         interval: BULLET_SPAWN_INTERVAL,
         last_spawned_duration: Duration::from_secs(0),
     })
+}
+
+pub fn create_score_board(manager: &mut EntityManager) -> &Entity {
+    manager.add_tag(Tag::Ui)
+        .add_component(Scoreboard { current_score: 0 })
 }

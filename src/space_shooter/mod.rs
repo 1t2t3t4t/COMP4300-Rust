@@ -31,6 +31,7 @@ impl SpaceGame {
         component::create_enemy(&mut self.entity_manager);
         component::create_enemy_spawner(&mut self.entity_manager);
         component::create_bullet_spawner(&mut self.entity_manager);
+        component::create_score_board(&mut self.entity_manager);
     }
 }
 
@@ -68,6 +69,7 @@ impl EventHandler for SpaceGame {
         system::render::render_shape_system(&mut self.entity_manager, ctx)?;
         render_fps_system(ctx)?;
         system::game::aim_system(&mut self.entity_manager, ctx)?;
+        system::render::render_scoreboard_system(&self.entity_manager, ctx)?;
 
         ggez::graphics::present(ctx)?;
         ggez::timer::yield_now();

@@ -1,9 +1,10 @@
 use crate::common::GameTransform;
+use crate::space_shooter::component::game::Scoreboard;
 use crate::space_shooter::component::general::Lifespan;
 use crate::space_shooter::component::shape::{Geometry, Shape};
 use ecs::entity::Entity;
 use ecs::manager::EntityManager;
-use ggez::graphics::{Color, DrawMode, Drawable, MeshBuilder, Rect};
+use ggez::graphics::{Color, DrawMode, Drawable, MeshBuilder, Rect, Text, Font, PxScale};
 use ggez::{Context, GameResult};
 
 fn ease_in(progress: f32) -> f32 {
@@ -72,4 +73,15 @@ fn render_shapes(entities: &[&mut Entity], ctx: &mut Context) -> GameResult<()> 
 
 pub fn render_shape_system(manager: &mut EntityManager, ctx: &mut Context) -> GameResult<()> {
     render_shapes(&manager.get_all(), ctx)
+}
+
+pub fn render_scoreboard_system(manager: &EntityManager, ctx: &mut Context) -> GameResult<()> { 
+    let boards = manager.query_entities::<Scoreboard>();
+    for board in boards {
+        let mut text = Text::new(format!("Score: {}", board.current_score));
+        text.set_font(Font::default(), PxScale::from(32f32));
+        ggez::graphics::draw(ctx, &text, ([12f32, 12f32], Color::BLACK))?;
+    }
+
+    Ok(())
 }

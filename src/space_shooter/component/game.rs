@@ -5,3 +5,7 @@ pub struct Spawner {
     pub interval: Duration,
     pub last_spawned_duration: Duration,
 }
+
+pub struct Scoreboard {
+    pub current_score: i32
+}
