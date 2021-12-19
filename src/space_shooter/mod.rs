@@ -55,7 +55,7 @@ impl EventHandler for SpaceGame {
         system::movement::bullet_movement_system(&mut self.entity_manager, ctx)?;
 
         system::game::shoot_system(&mut self.entity_manager, ctx)?;
-        system::game::kill_enemy_system(&mut self.entity_manager)?;
+        system::game::kill_enemy_system(&mut self.entity_manager, &mut self.event_system)?;
 
         system::collision::windows_bound_collision_system(
             &mut self.entity_manager,

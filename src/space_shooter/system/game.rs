@@ -1,3 +1,4 @@
+use crate::common::event::EventSender;
 use crate::common::{GameTransform, TryGet};
 
 use crate::space_shooter::component;
@@ -16,6 +17,8 @@ use crate::space_shooter::component::general::{Lifespan, Score};
 use crate::space_shooter::component::movement::Speed;
 use ecs::entity::EntityId;
 use ggez::event::MouseButton;
+
+use super::EnemyKilled;
 
 pub fn enemy_spawner(manager: &mut EntityManager, ctx: &mut Context) -> GameResult<()> {
     let enemy_count = manager.get_entities(Tag::Enemy).len();
@@ -105,7 +108,7 @@ pub fn aim_system(manager: &mut EntityManager, ctx: &mut Context) -> GameResult<
     Ok(())
 }
 
-pub fn kill_enemy_system(manager: &mut EntityManager) -> GameResult<()> {
+pub fn kill_enemy_system(manager: &mut EntityManager, sender: &mut impl EventSender<EnemyKilled>) -> GameResult<()> {
     let bullets = manager
         .get_entities(Tag::Bullet)
         .into_iter()
@@ -128,6 +131,8 @@ pub fn kill_enemy_system(manager: &mut EntityManager) -> GameResult<()> {
             enemy.destroy();
             bullet_to_destory.push(collide_bullet.0);
             sum_score += enemy.try_get_component::<Score>()?.0;
+            let enemy_transform = enemy.try_get_component::<GameTransform>()?.clone();
+            sender.send(EnemyKilled(enemy_transform));
         }
     }
 
