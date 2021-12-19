@@ -57,7 +57,7 @@ pub fn create_bullet(
         })
         .add_component(Collider {
             center: transform.position,
-            radius: BULLET_SIZE
+            radius: BULLET_SIZE,
         })
         .add_component(speed)
         .add_component(transform)

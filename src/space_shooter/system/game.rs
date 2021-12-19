@@ -1,7 +1,7 @@
 use crate::common::{GameTransform, TryGet};
-use crate::math::collision::BoxCollision;
+
 use crate::space_shooter::component;
-use crate::space_shooter::component::game::{Spawner, Scoreboard};
+use crate::space_shooter::component::game::{Scoreboard, Spawner};
 use crate::space_shooter::component::physics::Collider;
 use crate::space_shooter::Tag;
 use ecs::manager::EntityManager;
