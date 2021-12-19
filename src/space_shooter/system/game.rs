@@ -108,7 +108,10 @@ pub fn aim_system(manager: &mut EntityManager, ctx: &mut Context) -> GameResult<
     Ok(())
 }
 
-pub fn kill_enemy_system(manager: &mut EntityManager, sender: &mut impl EventSender<EnemyKilled>) -> GameResult<()> {
+pub fn kill_enemy_system(
+    manager: &mut EntityManager,
+    sender: &mut impl EventSender<EnemyKilled>,
+) -> GameResult<()> {
     let bullets = manager
         .get_entities(Tag::Bullet)
         .into_iter()
