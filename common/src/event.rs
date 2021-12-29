@@ -44,7 +44,7 @@ where
 
 #[cfg(test)]
 mod test {
-    use crate::common::event::{EventReceiver, EventSender, EventSystem};
+    use crate::event::{EventReceiver, EventSender, EventSystem};
 
     #[derive(Eq, PartialEq)]
     struct MyEvent(String);

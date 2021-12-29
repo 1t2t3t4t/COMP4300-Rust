@@ -1,21 +1,21 @@
-use crate::common::GameTransform;
-use crate::math::Vec2;
 use crate::space_shooter::component::general::{Lifespan, Score};
 use crate::space_shooter::component::movement::Speed;
 use crate::space_shooter::component::shape::{Geometry, Shape};
 use crate::space_shooter::Tag;
 use crate::{WINDOWS_HEIGHT, WINDOWS_WIDTH};
+use common::game_transform::GameTransform;
+use common::math::Vec2;
 use ecs::entity::Entity;
 use ecs::manager::EntityManager;
 use std::time::Duration;
 
-use crate::math::random::rand_element;
 use crate::space_shooter::component::constant::{
     BULLET_LIFESPAN, BULLET_SIZE, BULLET_SPAWN_INTERVAL, ENEMY_MAX_SPEED, ENEMY_MIN_SPEED,
     ENEMY_SIZE, ENEMY_SPAWN_INTERVAL, MAX_ENEMY_SPAWN,
 };
 use crate::space_shooter::component::game::Spawner;
 use crate::space_shooter::component::physics::Collider;
+use common::math::random::rand_element;
 use rand::Rng;
 
 use self::game::Scoreboard;

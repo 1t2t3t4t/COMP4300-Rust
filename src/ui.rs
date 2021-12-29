@@ -1,15 +1,12 @@
+use common::game_transform::{GameTransform, TryGet};
+use common::math::Vec2;
 use ecs::manager::EntityManager;
 use ggez::{
     graphics::{Color, DrawMode, Font, MeshBuilder, PxScale, Rect, StrokeOptions},
     Context, GameResult,
 };
 
-use crate::{
-    common::{GameTransform, TryGet},
-    game::Tag,
-    math::Vec2,
-    WINDOWS_HEIGHT, WINDOWS_WIDTH,
-};
+use crate::{game::Tag, WINDOWS_HEIGHT, WINDOWS_WIDTH};
 
 pub struct Button {
     pub title: String,

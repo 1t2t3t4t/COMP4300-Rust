@@ -1,5 +1,5 @@
-use crate::common::event::EventSender;
-use crate::common::{GameTransform, TryGet};
+use common::event::EventSender;
+use common::game_transform::{GameTransform, TryGet};
 
 use crate::space_shooter::component;
 use crate::space_shooter::component::game::{Scoreboard, Spawner};
@@ -10,11 +10,11 @@ use ggez::graphics::{Color, DrawMode};
 use ggez::{Context, GameResult};
 use std::time::Duration;
 
-use crate::math::{self, Vec2};
 use crate::space_shooter::component::constant::BULLET_SPEED;
 use crate::space_shooter::component::create_bullet;
 use crate::space_shooter::component::general::{Lifespan, Score};
 use crate::space_shooter::component::movement::Speed;
+use common::math::{self, Vec2};
 use ecs::entity::EntityId;
 use ggez::event::MouseButton;
 

@@ -1,14 +1,15 @@
 use ecs::manager::EntityManager;
 use ggez::{Context, GameResult};
 
-use crate::common::event::EventReceiver;
-use crate::common::TryGet;
 use crate::space_shooter::component::constant::PLAYER_SPEED;
 use crate::space_shooter::component::movement::Speed;
 use crate::space_shooter::component::physics::Collider;
 use crate::space_shooter::system::collision::BoundAxis;
 use crate::space_shooter::system::BoundCollide;
-use crate::{common::GameTransform, math::Vec2, space_shooter::Tag};
+use crate::space_shooter::Tag;
+use common::event::EventReceiver;
+use common::game_transform::{GameTransform, TryGet};
+use common::math::Vec2;
 
 pub fn player_movement_system(manager: &mut EntityManager, ctx: &mut Context) -> GameResult<()> {
     let players = manager.get_entities(Tag::Player);

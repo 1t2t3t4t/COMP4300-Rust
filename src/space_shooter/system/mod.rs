@@ -1,4 +1,5 @@
-use crate::{common::GameTransform, space_shooter::system::collision::BoundAxis};
+use crate::space_shooter::system::collision::BoundAxis;
+use common::game_transform::GameTransform;
 use ecs::entity::EntityId;
 
 pub mod collision;

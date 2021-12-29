@@ -5,8 +5,6 @@ use ggez::{GameError, GameResult};
 
 use crate::math::Vec2;
 
-pub mod event;
-
 #[derive(Clone)]
 pub struct GameTransform {
     pub position: Vec2,

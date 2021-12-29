@@ -1,5 +1,5 @@
-use crate::common::event::EventSystem;
 use crate::ui::render_fps_system;
+use common::event::EventSystem;
 use ecs::manager::EntityManager;
 use ggez::event::EventHandler;
 use ggez::graphics::Color;

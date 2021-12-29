@@ -322,9 +322,19 @@ dependencies = [
 ]
 
 [[package]]
+name = "common"
+version = "0.1.0"
+dependencies = [
+ "ecs",
+ "ggez",
+ "rand",
+]
+
+[[package]]
 name = "comp4300"
 version = "0.1.0"
 dependencies = [
+ "common",
  "ecs",
  "ggez",
  "rand",

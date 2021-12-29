@@ -1,4 +1,4 @@
-use crate::math::{collision::BoxCollision, Vec2};
+use common::math::{collision::BoxCollision, Vec2};
 
 #[derive(Clone, Copy)]
 pub struct Collider {

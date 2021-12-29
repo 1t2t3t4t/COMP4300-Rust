@@ -1,9 +1,9 @@
-use crate::common::event::EventSender;
-use crate::common::{GameTransform, TryGet};
 use crate::space_shooter::component::physics::Collider;
 use crate::space_shooter::system::BoundCollide;
 use crate::space_shooter::Tag;
 use crate::{WINDOWS_HEIGHT, WINDOWS_WIDTH};
+use common::event::EventSender;
+use common::game_transform::{GameTransform, TryGet};
 use ecs::manager::EntityManager;
 use ggez::GameResult;
 

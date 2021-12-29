@@ -1,7 +1,7 @@
-use crate::common::GameTransform;
 use crate::space_shooter::component::game::Scoreboard;
 use crate::space_shooter::component::general::Lifespan;
 use crate::space_shooter::component::shape::{Geometry, Shape};
+use common::game_transform::GameTransform;
 use ecs::entity::Entity;
 use ecs::manager::EntityManager;
 use ggez::graphics::{Color, DrawMode, Drawable, Font, MeshBuilder, PxScale, Rect, Text};

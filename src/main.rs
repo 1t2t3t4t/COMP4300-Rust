@@ -1,9 +1,7 @@
 use crate::space_shooter::SpaceGame;
 use ggez::{conf::WindowMode, ContextBuilder, GameResult};
 
-mod common;
 mod game;
-mod math;
 mod space_shooter;
 mod ui;
 

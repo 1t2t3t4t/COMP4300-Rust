@@ -1,4 +1,4 @@
-use crate::math::Vec2;
+use common::math::Vec2;
 
 pub struct Speed {
     pub velocity: Vec2,
