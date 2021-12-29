@@ -122,7 +122,7 @@ pub fn kill_enemy_system(
         .collect::<Vec<(EntityId, Collider)>>();
 
     let enemies = manager.get_entities(Tag::Enemy);
-    let mut bullet_to_destory = Vec::<EntityId>::new();
+    let mut bullet_to_destroy = Vec::<EntityId>::new();
     let mut sum_score = 0;
 
     for enemy in enemies {
@@ -132,14 +132,14 @@ pub fn kill_enemy_system(
             .find(|b| math::collision::collide_aabb(&enemy_collider.into(), &b.1.into()))
         {
             enemy.destroy();
-            bullet_to_destory.push(collide_bullet.0);
+            bullet_to_destroy.push(collide_bullet.0);
             sum_score += enemy.try_get_component::<Score>()?.0;
             let enemy_transform = enemy.try_get_component::<GameTransform>()?.clone();
             sender.send(EnemyKilled(enemy_transform));
         }
     }
 
-    for id in bullet_to_destory {
+    for id in bullet_to_destroy {
         if let Some(entity) = manager.get_entity(id) {
             entity.destroy();
         }
@@ -147,6 +147,37 @@ pub fn kill_enemy_system(
 
     let mut scoreboard = manager.query_entities_mut::<Scoreboard>();
     scoreboard.first_mut().unwrap().1.current_score += sum_score;
+
+    Ok(())
+}
+
+pub fn player_collision_system(manager: &mut EntityManager) -> GameResult<()> {
+    const DEATH_PENALTY: i32 = 500;
+
+    let players = manager.get_entities(Tag::Player);
+    let player = players.first().unwrap();
+    let &collider = player.try_get_component::<Collider>()?;
+    let enemies = manager.get_entities(Tag::Enemy);
+    let mut collided = false;
+
+    for enemy in enemies {
+        if let Some(&enemy_collider) = enemy.get_component::<Collider>() {
+            if common::math::collision::collide_aabb(&collider.into(), &enemy_collider.into()) {
+                collided = true;
+                enemy.destroy();
+                break;
+            }
+        }
+    }
+
+    if collided {
+        let mut players = manager.get_entities(Tag::Player);
+        players.first_mut().unwrap().destroy();
+        component::create_player(manager);
+
+        let mut scoreboard = manager.query_entities_mut::<Scoreboard>();
+        scoreboard.first_mut().unwrap().1.current_score -= DEATH_PENALTY;
+    }
 
     Ok(())
 }

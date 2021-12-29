@@ -61,6 +61,7 @@ impl EventHandler for SpaceGame {
             &mut self.entity_manager,
             &mut self.event_system,
         )?;
+        system::game::player_collision_system(&mut self.entity_manager)?;
         Ok(())
     }
 
