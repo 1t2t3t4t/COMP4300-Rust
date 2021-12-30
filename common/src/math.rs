@@ -27,8 +27,8 @@ impl Vec2 {
     }
 
     pub fn distance(self, rhs: Self) -> f32 {
-        let Self { x: dx, y: dy } = rhs - self;
-        Vec2::new(dx, dy).magnitude()
+        let diff = rhs - self;
+        diff.magnitude()
     }
 
     pub fn normalized(&self) -> Self {
@@ -59,7 +59,7 @@ impl From<Vec2> for [f32; 2] {
     }
 }
 
-impl From<Vec2> for ggez::mint::Point2<f32> {
+impl From<Vec2> for Point2<f32> {
     fn from(vec: Vec2) -> Self {
         let arr: [f32; 2] = vec.into();
         arr.into()
@@ -120,9 +120,14 @@ pub mod collision {
     }
 
     pub fn collide_aabb(a: &BoxCollision, b: &BoxCollision) -> bool {
-        !(a.pos.x > b.pos.x + b.size.x
-            || a.pos.x + a.size.x < b.pos.x
-            || a.pos.y > b.pos.y + b.size.y
-            || a.pos.y + a.size.y < b.pos.y)
+        horizontal_overlap(a, b) && vertical_overlap(a, b)
+    }
+
+    pub fn horizontal_overlap(a: &BoxCollision, b: &BoxCollision) -> bool {
+        a.pos.y <= (b.pos.y + b.size.y) && b.pos.y <= (a.pos.y + a.size.y)
+    }
+
+    pub fn vertical_overlap(a: &BoxCollision, b: &BoxCollision) -> bool {
+        a.pos.x <= (b.pos.x + b.size.x) && b.pos.x <= (a.pos.x + a.size.x)
     }
 }
