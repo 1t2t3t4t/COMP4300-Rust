@@ -14,7 +14,8 @@ use crate::space_shooter::component::constant::BULLET_SPEED;
 use crate::space_shooter::component::create_bullet;
 use crate::space_shooter::component::general::{Lifespan, Score};
 use crate::space_shooter::component::movement::Speed;
-use common::math::{self, Vec2};
+use common::math::collision::BoxCollision;
+use common::math::Vec2;
 use ecs::entity::EntityId;
 use ggez::event::MouseButton;
 
@@ -126,10 +127,10 @@ pub fn kill_enemy_system(
     let mut sum_score = 0;
 
     for enemy in enemies {
-        let &enemy_collider = enemy.try_get_component::<Collider>()?;
+        let enemy_collider: BoxCollision = enemy.try_get_component::<Collider>()?.into();
         if let Some(collide_bullet) = bullets
             .iter()
-            .find(|b| math::collision::collide_aabb(&enemy_collider.into(), &b.1.into()))
+            .find(|b| enemy_collider.collide_aabb(&b.1.into()))
         {
             enemy.destroy();
             bullet_to_destroy.push(collide_bullet.0);
@@ -162,7 +163,8 @@ pub fn player_collision_system(manager: &mut EntityManager) -> GameResult<()> {
 
     for enemy in enemies {
         if let Some(&enemy_collider) = enemy.get_component::<Collider>() {
-            if common::math::collision::collide_aabb(&collider.into(), &enemy_collider.into()) {
+            let enemy_collision: BoxCollision = enemy_collider.into();
+            if enemy_collision.collide_aabb(&collider.into()) {
                 collided = true;
                 enemy.destroy();
                 break;
