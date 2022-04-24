@@ -52,11 +52,15 @@ impl Entity {
             .and_then(|v| v.downcast_mut::<T>())
     }
 
+    pub fn get_components<'e, T: TypesQueryable<'e>>(&'e self) -> T::QueryResult {
+        T::query(self)
+    }
+
     pub fn has_component<T: Any>(&self) -> bool {
         self.components.contains_key(&TypeId::of::<T>())
     }
 
-    pub fn has_components<T: TypesQueryable>(&self) -> bool {
+    pub fn has_components<'e, T: TypesQueryable<'e>>(&'e self) -> bool {
         let query_types = T::get_types();
         for t in query_types {
             if !self.components.contains_key(&t) {
@@ -67,19 +71,35 @@ impl Entity {
     }
 }
 
-pub trait TypesQueryable {
+pub trait TypesQueryable<'e> {
+    type QueryResult;
+
     fn get_types() -> Vec<TypeId>;
+    fn query(entity: &'e Entity) -> Self::QueryResult;
 }
 
 macro_rules! types_queryable {
     ($a:tt) => {};
     ($a:tt, $($b:tt),+) => {
-        impl<$a, $($b), +> TypesQueryable for ($a, $($b), +) where $a: Any, $($b : Any),+ {
+        impl<'e, $a, $($b), +> TypesQueryable<'e> for ($a, $($b), +) where $a: Any, $($b : Any),+ {
+            type QueryResult = Option<(&'e $a, $(&'e $b),+)>;
+
             fn get_types() -> Vec<TypeId> {
                 vec![
                     TypeId::of::<$a>(),
                     $(TypeId::of::<$b>()),+
                 ]
+            }
+
+            fn query(entity: &'e Entity) -> Self::QueryResult {
+                if !entity.has_components::<Self>() {
+                    None
+                } else {
+                    Some((
+                        entity.get_component::<$a>().unwrap(),
+                        $(entity.get_component::<$b>().unwrap()),+
+                    ))
+                }
             }
         }
         types_queryable!($($b),+);
@@ -99,7 +119,7 @@ mod tests {
 
     struct OtherComponent;
 
-    fn get_types<T: TypesQueryable>() -> Vec<TypeId> {
+    fn get_types<'e, T: TypesQueryable<'e>>() -> Vec<TypeId> {
         T::get_types()
     }
 
@@ -133,6 +153,16 @@ mod tests {
         let res = entity.get_component_mut::<MyComponent>();
         assert!(res.is_some());
         assert!(entity.has_component::<MyComponent>())
+    }
+
+    #[test]
+    fn test_get_components() {
+        let mut entity = Entity::new(1, "".to_string());
+        entity.add_component(MyComponent);
+        entity.add_component(OtherComponent);
+
+        let res = entity.get_components::<(MyComponent, OtherComponent)>();
+        assert!(res.is_some());
     }
 
     #[test]
