@@ -76,7 +76,7 @@ pub fn render_shape_system(manager: &mut EntityManager, ctx: &mut Context) -> Ga
 }
 
 pub fn render_scoreboard_system(manager: &EntityManager, ctx: &mut Context) -> GameResult<()> {
-    let boards = manager.query_entities::<Scoreboard>();
+    let boards = manager.query_entities_by_component::<Scoreboard>();
     for board in boards {
         let mut text = Text::new(format!("Score: {}", board.current_score));
         text.set_font(Font::default(), PxScale::from(32f32));

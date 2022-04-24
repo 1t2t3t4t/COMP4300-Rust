@@ -52,7 +52,7 @@ impl Entity {
             .and_then(|v| v.downcast_mut::<T>())
     }
 
-    pub fn get_components<'e, T: TypesQueryable<'e>>(&'e self) -> T::QueryResult {
+    pub fn get_components<'e, T: TypesQueryable<'e>>(&'e self) -> Option<T::QueryResult> {
         T::query(self)
     }
 

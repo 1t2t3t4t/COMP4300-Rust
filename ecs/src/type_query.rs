@@ -5,14 +5,14 @@ pub trait TypesQueryable<'e> {
     type QueryResult;
 
     fn get_types() -> Vec<TypeId>;
-    fn query(entity: &'e Entity) -> Self::QueryResult;
+    fn query(entity: &'e Entity) -> Option<Self::QueryResult>;
 }
 
 macro_rules! types_queryable {
     ($a:tt) => {};
     ($a:tt, $($b:tt),+) => {
         impl<'e, $a, $($b), +> TypesQueryable<'e> for ($a, $($b), +) where $a: std::any::Any, $($b : std::any::Any),+ {
-            type QueryResult = Option<(&'e $a, $(&'e $b),+)>;
+            type QueryResult = (&'e $a, $(&'e $b),+);
 
             fn get_types() -> Vec<std::any::TypeId> {
                 vec![
@@ -21,7 +21,7 @@ macro_rules! types_queryable {
                 ]
             }
 
-            fn query(entity: &'e Entity) -> Self::QueryResult {
+            fn query(entity: &'e Entity) -> Option<Self::QueryResult> {
                 if !entity.has_components::<Self>() {
                     None
                 } else {

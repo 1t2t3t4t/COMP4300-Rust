@@ -4,6 +4,7 @@ use std::{
     marker::PhantomData,
 };
 
+use crate::type_query::TypesQueryable;
 use crate::{
     entity::{Entity, EntityId},
     Tag,
@@ -65,14 +66,23 @@ impl EntityManager {
             .collect()
     }
 
-    pub fn query_entities<T: Any>(&self) -> Vec<&T> {
+    pub fn query_entities_by_component<T: Any>(&self) -> Vec<&T> {
         self.entities
             .values()
             .filter_map(|e| e.get_component::<T>())
             .collect()
     }
 
-    pub fn query_entities_mut<T: Any>(&mut self) -> Vec<(EntityId, &mut T)> {
+    pub fn query_entities_by_components<'e, T: TypesQueryable<'e>>(
+        &'e self,
+    ) -> Vec<T::QueryResult> {
+        self.entities
+            .values()
+            .filter_map(|e| e.get_components::<T>())
+            .collect()
+    }
+
+    pub fn query_entities_mut_by_component<T: Any>(&mut self) -> Vec<(EntityId, &mut T)> {
         self.entities
             .values_mut()
             .filter_map(|e| {
@@ -125,6 +135,46 @@ mod tests {
     use crate::{manager::DEFAULT_ENTITY_TAG, Tag};
 
     use super::EntityManager;
+
+    #[derive(Debug, Eq, PartialEq)]
+    struct CompA(String);
+    #[derive(Debug, Eq, PartialEq)]
+    struct CompB(String);
+    #[derive(Debug, Eq, PartialEq)]
+    struct CompC(String);
+
+    #[test]
+    fn test_query_components() {
+        let mut manager = EntityManager::default();
+        manager
+            .add()
+            .add_component(CompA(String::from("1")))
+            .add_component(CompB(String::from("1")));
+        manager
+            .add()
+            .add_component(CompA(String::from("2")))
+            .add_component(CompB(String::from("2")))
+            .add_component(CompC(String::from("2")));
+        manager
+            .add()
+            .add_component(CompA(String::from("3")))
+            .add_component(CompC(String::from("3")));
+        manager.update();
+
+        let res = manager.query_entities_by_components::<(CompA, CompB)>();
+
+        assert_eq!(res.len(), 2);
+        assert!(
+            res.iter()
+                .any(|r| *r == (&CompA(String::from("1")), &CompB(String::from("1")))),
+            "Does not have 1"
+        );
+        assert!(
+            res.iter()
+                .any(|r| *r == (&CompA(String::from("2")), &CompB(String::from("2")))),
+            "Does not have 2"
+        );
+    }
 
     #[test]
     fn test_insert_entity() {

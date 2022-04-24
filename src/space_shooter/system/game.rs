@@ -64,7 +64,7 @@ pub fn shoot_system(manager: &mut EntityManager, ctx: &mut Context) -> GameResul
 }
 
 pub fn lifespan_system(manager: &mut EntityManager, ctx: &mut Context) -> GameResult<()> {
-    let lifespans = manager.query_entities_mut::<Lifespan>();
+    let lifespans = manager.query_entities_mut_by_component::<Lifespan>();
     let dt = ggez::timer::delta(ctx);
     let mut to_kill_ids = Vec::<EntityId>::with_capacity(lifespans.len());
 
@@ -146,7 +146,7 @@ pub fn kill_enemy_system(
         }
     }
 
-    let mut scoreboard = manager.query_entities_mut::<Scoreboard>();
+    let mut scoreboard = manager.query_entities_mut_by_component::<Scoreboard>();
     scoreboard.first_mut().unwrap().1.current_score += sum_score;
 
     Ok(())
@@ -177,7 +177,7 @@ pub fn player_collision_system(manager: &mut EntityManager) -> GameResult<()> {
         players.first_mut().unwrap().destroy();
         component::create_player(manager);
 
-        let mut scoreboard = manager.query_entities_mut::<Scoreboard>();
+        let mut scoreboard = manager.query_entities_mut_by_component::<Scoreboard>();
         scoreboard.first_mut().unwrap().1.current_score -= DEATH_PENALTY;
     }
 
