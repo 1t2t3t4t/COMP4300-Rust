@@ -1,6 +1,7 @@
 use std::{
     any::{Any, TypeId},
-    collections::HashMap, vec,
+    collections::HashMap,
+    vec,
 };
 
 pub type EntityId = u64;
@@ -60,7 +61,7 @@ impl Entity {
         for t in query_types {
             if !self.components.contains_key(&t) {
                 return false;
-            }     
+            }
         }
         true
     }
@@ -71,27 +72,21 @@ pub trait TypesQueryable {
 }
 
 macro_rules! types_queryable {
-    ($($t:ident),+) => {
-        impl<$($t), +> TypesQueryable for ($($t), +) where $($t : Any),+ {
+    ($a:tt) => {};
+    ($a:tt, $($b:tt),+) => {
+        impl<$a, $($b), +> TypesQueryable for ($a, $($b), +) where $a: Any, $($b : Any),+ {
             fn get_types() -> Vec<TypeId> {
                 vec![
-                    $(TypeId::of::<$t>()),+
+                    TypeId::of::<$a>(),
+                    $(TypeId::of::<$b>()),+
                 ]
             }
         }
-    };
+        types_queryable!($($b),+);
+    }
 }
 
 // Auto implement tuple query typeid getter
-types_queryable!(A, B);
-types_queryable!(A, B, C);
-types_queryable!(A, B, C, D);
-types_queryable!(A, B, C, D, E);
-types_queryable!(A, B, C, D, E, F);
-types_queryable!(A, B, C, D, E, F, G);
-types_queryable!(A, B, C, D, E, F, G, H);
-types_queryable!(A, B, C, D, E, F, G, H, I);
-types_queryable!(A, B, C, D, E, F, G, H, I, J);
 types_queryable!(A, B, C, D, E, F, G, H, I, J, K);
 
 #[cfg(test)]
@@ -114,11 +109,6 @@ mod tests {
 
         assert_eq!(types[0], TypeId::of::<MyComponent>());
         assert_eq!(types[1], TypeId::of::<OtherComponent>());
-    }
-
-    #[test]
-    fn test() {
-        
     }
 
     #[test]
@@ -148,7 +138,7 @@ mod tests {
     #[test]
     fn test_check_components() {
         struct RandomComponent;
-        
+
         let mut entity = Entity::new(1, "".to_string());
         entity.add_component(MyComponent);
         entity.add_component(OtherComponent);
