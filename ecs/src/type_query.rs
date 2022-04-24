@@ -8,7 +8,7 @@ pub trait TypesQueryable<'e> {
     fn query(entity: &'e Entity) -> Option<Self::QueryResult>;
 }
 
-macro_rules! types_queryable {
+macro_rules! types_queryable_tuple {
     ($a:tt) => {};
     ($a:tt, $($b:tt),+) => {
         impl<'e, $a, $($b), +> TypesQueryable<'e> for ($a, $($b), +) where $a: std::any::Any, $($b : std::any::Any),+ {
@@ -32,9 +32,9 @@ macro_rules! types_queryable {
                 }
             }
         }
-        types_queryable!($($b),+);
+        types_queryable_tuple!($($b),+);
     }
 }
 
 // Auto implement tuple query typeid getter
-types_queryable!(A, B, C, D, E, F, G, H, I, J, K);
+types_queryable_tuple!(A, B, C, D, E, F, G, H, I, J, K);
