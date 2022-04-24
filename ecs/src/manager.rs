@@ -48,7 +48,7 @@ impl EntityManager {
         self.entities.get_mut(&id)
     }
 
-    pub fn get_entities<S: Tag>(&mut self, tag: S) -> Vec<&mut Entity> {
+    pub fn get_entities_tag<S: Tag>(&mut self, tag: S) -> Vec<&mut Entity> {
         if let Some(ids) = self.tags.get(&tag.value()) {
             self.entities
                 .iter_mut()
@@ -60,29 +60,27 @@ impl EntityManager {
     }
 
     pub fn query_entities_tag_mut<T: Any, S: Tag>(&mut self, tag: S) -> Vec<&mut T> {
-        self.get_entities(tag)
+        self.get_entities_tag(tag)
             .into_iter()
             .filter_map(|e| e.get_component_mut::<T>())
             .collect()
     }
 
-    pub fn query_entities_by_component<T: Any>(&self) -> Vec<&T> {
+    pub fn query_entities_component<T: Any>(&self) -> Vec<&T> {
         self.entities
             .values()
             .filter_map(|e| e.get_component::<T>())
             .collect()
     }
 
-    pub fn query_entities_by_components<'e, T: TypesQueryable<'e>>(
-        &'e self,
-    ) -> Vec<T::QueryResult> {
+    pub fn query_entities_components<'e, T: TypesQueryable<'e>>(&'e self) -> Vec<T::QueryResult> {
         self.entities
             .values()
             .filter_map(|e| e.get_components::<T>())
             .collect()
     }
 
-    pub fn query_entities_mut_by_component<T: Any>(&mut self) -> Vec<(EntityId, &mut T)> {
+    pub fn query_entities_component_mut<T: Any>(&mut self) -> Vec<(EntityId, &mut T)> {
         self.entities
             .values_mut()
             .filter_map(|e| {
@@ -161,7 +159,7 @@ mod tests {
             .add_component(CompC(String::from("3")));
         manager.update();
 
-        let res = manager.query_entities_by_components::<(CompA, CompB)>();
+        let res = manager.query_entities_components::<(CompA, CompB)>();
 
         assert_eq!(res.len(), 2);
         assert!(
@@ -226,7 +224,7 @@ mod tests {
         manager.add();
         manager.update();
 
-        let entities = manager.get_entities(tag);
+        let entities = manager.get_entities_tag(tag);
 
         assert_eq!(entities.len(), 2);
         assert!(entities.iter().any(|e| e.id == id1));
@@ -248,7 +246,7 @@ mod tests {
         assert!(manager.get_entity(id2).is_some());
         assert!(manager.get_entity(id1).is_none());
 
-        let tag_entries = manager.get_entities(tag);
+        let tag_entries = manager.get_entities_tag(tag);
         assert!(tag_entries.iter().any(|e| e.id == id2));
         assert!(!tag_entries.iter().any(|e| e.id == id1));
     }

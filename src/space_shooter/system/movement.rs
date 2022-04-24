@@ -12,7 +12,7 @@ use common::game_transform::{GameTransform, TryGet};
 use common::math::Vec2;
 
 pub fn player_movement_system(manager: &mut EntityManager, ctx: &mut Context) -> GameResult<()> {
-    let players = manager.get_entities(Tag::Player);
+    let players = manager.get_entities_tag(Tag::Player);
     for player in players {
         let dt = ggez::timer::delta(ctx);
         let mut dir = Vec2::zero();
@@ -40,7 +40,7 @@ pub fn enemy_movement_system<E: EventReceiver<BoundCollide>>(
     event: &mut E,
     ctx: &mut Context,
 ) -> GameResult<()> {
-    let enemies = manager.get_entities(Tag::Enemy);
+    let enemies = manager.get_entities_tag(Tag::Enemy);
     let dt = ggez::timer::delta(ctx);
     let collide_events = event.read();
 
@@ -61,7 +61,7 @@ pub fn enemy_movement_system<E: EventReceiver<BoundCollide>>(
 }
 
 pub fn bullet_movement_system(manager: &mut EntityManager, ctx: &mut Context) -> GameResult<()> {
-    let bullets = manager.get_entities(Tag::Bullet);
+    let bullets = manager.get_entities_tag(Tag::Bullet);
     let dt = ggez::timer::delta(ctx);
     for bullet in bullets {
         if let Some(speed) = bullet.get_component::<Speed>() {

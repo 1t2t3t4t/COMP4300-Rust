@@ -16,7 +16,7 @@ pub fn windows_bound_collision_system<E: EventSender<BoundCollide>>(
     manager: &mut EntityManager,
     event_system: &mut E,
 ) -> GameResult<()> {
-    let enemies = manager.get_entities(Tag::Enemy);
+    let enemies = manager.get_entities_tag(Tag::Enemy);
     for enemy in enemies {
         let collider = enemy.try_get_component::<Collider>()?;
 

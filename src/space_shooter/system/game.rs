@@ -22,9 +22,9 @@ use ggez::event::MouseButton;
 use super::EnemyKilled;
 
 pub fn enemy_spawner(manager: &mut EntityManager, ctx: &mut Context) -> GameResult<()> {
-    let enemy_count = manager.get_entities(Tag::Enemy).len();
+    let enemy_count = manager.get_entities_tag(Tag::Enemy).len();
 
-    let mut spawner = manager.get_entities(Tag::Spawner);
+    let mut spawner = manager.get_entities_tag(Tag::Spawner);
     let spawner = spawner.first_mut().unwrap();
 
     let info = spawner.try_get_component_mut::<Spawner>()?;
@@ -48,7 +48,7 @@ pub fn shoot_system(manager: &mut EntityManager, ctx: &mut Context) -> GameResul
     if can_shoot && ggez::input::mouse::button_pressed(ctx, MouseButton::Left) {
         spawner.last_spawned_duration = Duration::from_secs(0);
 
-        if let Some(player) = manager.get_entities(Tag::Player).first_mut() {
+        if let Some(player) = manager.get_entities_tag(Tag::Player).first_mut() {
             let mouse_pos: Vec2 = ggez::input::mouse::position(ctx).into();
             let player_pos = player.try_get_component::<GameTransform>()?.position;
             let shoot_dir = mouse_pos - player_pos;
@@ -64,7 +64,7 @@ pub fn shoot_system(manager: &mut EntityManager, ctx: &mut Context) -> GameResul
 }
 
 pub fn lifespan_system(manager: &mut EntityManager, ctx: &mut Context) -> GameResult<()> {
-    let lifespans = manager.query_entities_mut_by_component::<Lifespan>();
+    let lifespans = manager.query_entities_component_mut::<Lifespan>();
     let dt = ggez::timer::delta(ctx);
     let mut to_kill_ids = Vec::<EntityId>::with_capacity(lifespans.len());
 
@@ -84,7 +84,7 @@ pub fn lifespan_system(manager: &mut EntityManager, ctx: &mut Context) -> GameRe
 }
 
 pub fn aim_system(manager: &mut EntityManager, ctx: &mut Context) -> GameResult<()> {
-    let entity = manager.get_entities(Tag::Player);
+    let entity = manager.get_entities_tag(Tag::Player);
     let player = entity.first().unwrap();
     let collider = player.try_get_component::<Collider>()?;
 
@@ -114,7 +114,7 @@ pub fn kill_enemy_system(
     sender: &mut impl EventSender<EnemyKilled>,
 ) -> GameResult<()> {
     let bullets = manager
-        .get_entities(Tag::Bullet)
+        .get_entities_tag(Tag::Bullet)
         .into_iter()
         .filter_map(|b| match b.try_get_component::<Collider>() {
             Ok(&c) => Some((b.id, c)),
@@ -122,7 +122,7 @@ pub fn kill_enemy_system(
         })
         .collect::<Vec<(EntityId, Collider)>>();
 
-    let enemies = manager.get_entities(Tag::Enemy);
+    let enemies = manager.get_entities_tag(Tag::Enemy);
     let mut bullet_to_destroy = Vec::<EntityId>::new();
     let mut sum_score = 0;
 
@@ -146,7 +146,7 @@ pub fn kill_enemy_system(
         }
     }
 
-    let mut scoreboard = manager.query_entities_mut_by_component::<Scoreboard>();
+    let mut scoreboard = manager.query_entities_component_mut::<Scoreboard>();
     scoreboard.first_mut().unwrap().1.current_score += sum_score;
 
     Ok(())
@@ -155,10 +155,10 @@ pub fn kill_enemy_system(
 pub fn player_collision_system(manager: &mut EntityManager) -> GameResult<()> {
     const DEATH_PENALTY: i32 = 500;
 
-    let players = manager.get_entities(Tag::Player);
+    let players = manager.get_entities_tag(Tag::Player);
     let player = players.first().unwrap();
     let &collider = player.try_get_component::<Collider>()?;
-    let enemies = manager.get_entities(Tag::Enemy);
+    let enemies = manager.get_entities_tag(Tag::Enemy);
     let mut collided = false;
 
     for enemy in enemies {
@@ -173,11 +173,11 @@ pub fn player_collision_system(manager: &mut EntityManager) -> GameResult<()> {
     }
 
     if collided {
-        let mut players = manager.get_entities(Tag::Player);
+        let mut players = manager.get_entities_tag(Tag::Player);
         players.first_mut().unwrap().destroy();
         component::create_player(manager);
 
-        let mut scoreboard = manager.query_entities_mut_by_component::<Scoreboard>();
+        let mut scoreboard = manager.query_entities_component_mut::<Scoreboard>();
         scoreboard.first_mut().unwrap().1.current_score -= DEATH_PENALTY;
     }
 
