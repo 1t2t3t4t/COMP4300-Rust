@@ -1,7 +1,7 @@
+use crate::type_query::TypesQueryable;
 use std::{
     any::{Any, TypeId},
     collections::HashMap,
-    vec,
 };
 
 pub type EntityId = u64;
@@ -70,44 +70,6 @@ impl Entity {
         true
     }
 }
-
-pub trait TypesQueryable<'e> {
-    type QueryResult;
-
-    fn get_types() -> Vec<TypeId>;
-    fn query(entity: &'e Entity) -> Self::QueryResult;
-}
-
-macro_rules! types_queryable {
-    ($a:tt) => {};
-    ($a:tt, $($b:tt),+) => {
-        impl<'e, $a, $($b), +> TypesQueryable<'e> for ($a, $($b), +) where $a: Any, $($b : Any),+ {
-            type QueryResult = Option<(&'e $a, $(&'e $b),+)>;
-
-            fn get_types() -> Vec<TypeId> {
-                vec![
-                    TypeId::of::<$a>(),
-                    $(TypeId::of::<$b>()),+
-                ]
-            }
-
-            fn query(entity: &'e Entity) -> Self::QueryResult {
-                if !entity.has_components::<Self>() {
-                    None
-                } else {
-                    Some((
-                        entity.get_component::<$a>().unwrap(),
-                        $(entity.get_component::<$b>().unwrap()),+
-                    ))
-                }
-            }
-        }
-        types_queryable!($($b),+);
-    }
-}
-
-// Auto implement tuple query typeid getter
-types_queryable!(A, B, C, D, E, F, G, H, I, J, K);
 
 #[cfg(test)]
 mod tests {
