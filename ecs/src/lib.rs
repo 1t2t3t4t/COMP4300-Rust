@@ -2,7 +2,10 @@ use std::fmt::Debug;
 
 pub mod entity;
 pub mod manager;
-pub mod type_query;
+
+pub(crate) mod type_query;
+
+pub use type_query::TypesQueryable;
 
 pub trait Tag {
     fn value(self) -> String;

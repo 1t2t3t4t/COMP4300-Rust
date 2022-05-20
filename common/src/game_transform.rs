@@ -1,7 +1,7 @@
 use std::any::{type_name, Any};
 
 use ecs::entity::Entity;
-use ecs::type_query::TypesQueryable;
+use ecs::TypesQueryable;
 use ggez::{GameError, GameResult};
 
 use crate::math::Vec2;
