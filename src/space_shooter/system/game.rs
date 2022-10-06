@@ -151,35 +151,3 @@ pub fn kill_enemy_system(
 
     Ok(())
 }
-
-pub fn player_collision_system(manager: &mut EntityManager) -> GameResult<()> {
-    const DEATH_PENALTY: i32 = 500;
-
-    let players = manager.get_entities_tag(Tag::Player);
-    let player = players.first().unwrap();
-    let &collider = player.try_get_component::<Collider>()?;
-    let enemies = manager.get_entities_tag(Tag::Enemy);
-    let mut collided = false;
-
-    for enemy in enemies {
-        if let Some(&enemy_collider) = enemy.get_component::<Collider>() {
-            let enemy_collision: BoxCollision = enemy_collider.into();
-            if enemy_collision.collide_aabb(&collider.into()) {
-                collided = true;
-                enemy.destroy();
-                break;
-            }
-        }
-    }
-
-    if collided {
-        let mut players = manager.get_entities_tag(Tag::Player);
-        players.first_mut().unwrap().destroy();
-        component::create_player(manager);
-
-        let mut scoreboard = manager.query_entities_component_mut::<Scoreboard>();
-        scoreboard.first_mut().unwrap().1.current_score -= DEATH_PENALTY;
-    }
-
-    Ok(())
-}

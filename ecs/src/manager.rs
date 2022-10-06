@@ -1,16 +1,14 @@
 use std::any::Any;
-use std::{
-    collections::{HashMap, VecDeque},
-    marker::PhantomData,
-};
+use std::borrow::Borrow;
+use std::collections::vec_deque::VecDeque;
+use std::collections::HashMap;
+use std::hash::Hash;
 
 use crate::type_query::TypesQueryable;
 use crate::{
     entity::{Entity, EntityId},
     Tag,
 };
-
-pub struct EntityTag<T>(PhantomData<T>);
 
 pub const DEFAULT_ENTITY_TAG: &str = "Default";
 
@@ -118,14 +116,25 @@ impl EntityManager {
 
     fn safe_insert_entity(&mut self) {
         while let Some(entity) = self.pending_add.pop_front() {
-            if let Some(tag_entities) = self.tags.get_mut(&entity.tag) {
-                tag_entities.push(entity.id)
-            } else {
-                self.tags.insert(entity.tag.clone(), vec![entity.id]);
-            }
+            let tag_entities = get_or_insert(&entity.tag, &mut self.tags);
+            tag_entities.push(entity.id);
             self.entities.insert(entity.id, entity);
         }
     }
+}
+
+fn get_or_insert<K, V, BK>(key: BK, map: &mut HashMap<K, V>) -> &mut V
+where
+    K: Eq + Hash + Clone,
+    BK: Borrow<K>,
+    V: Default,
+{
+    let b_key = key.borrow();
+    if !map.contains_key(b_key) {
+        let val = V::default();
+        map.insert(b_key.clone(), val);
+    }
+    map.get_mut(b_key).unwrap()
 }
 
 #[cfg(test)]
@@ -197,6 +206,14 @@ mod tests {
         assert!(manager.entities.contains_key(&id));
         assert!(manager.tags.contains_key(&tag.value()));
         assert!(manager.tags[&tag.value()].contains(&id));
+
+        let id2 = manager.add_tag(tag).id;
+
+        manager.update();
+
+        assert!(manager.entities.contains_key(&id2));
+        assert!(manager.tags.contains_key(&tag.value()));
+        assert!(manager.tags[&tag.value()].contains(&id2));
     }
 
     #[test]

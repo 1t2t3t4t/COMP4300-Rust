@@ -61,7 +61,9 @@ impl Entity {
     }
 
     pub fn has_components<'e, T: TypesQueryable<'e>>(&'e self) -> bool {
-        T::get_types().iter().all(|id| self.components.contains_key(id))
+        T::get_types()
+            .iter()
+            .all(|id| self.components.contains_key(id))
     }
 }
 

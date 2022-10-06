@@ -35,9 +35,9 @@ pub fn player_movement_system(manager: &mut EntityManager, ctx: &mut Context) ->
     Ok(())
 }
 
-pub fn enemy_movement_system<E: EventReceiver<BoundCollide>>(
+pub fn enemy_movement_system(
     manager: &mut EntityManager,
-    event: &mut E,
+    event: &mut impl EventReceiver<BoundCollide>,
     ctx: &mut Context,
 ) -> GameResult<()> {
     let enemies = manager.get_entities_tag(Tag::Enemy);
