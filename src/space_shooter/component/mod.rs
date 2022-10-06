@@ -45,10 +45,10 @@ pub(crate) mod constant {
 }
 
 pub fn create_bullet(
-    manager: &mut EntityManager,
+    manager: &mut EntityManager<Tag>,
     speed: Speed,
     transform: GameTransform,
-) -> &Entity {
+) -> &Entity<Tag> {
     manager
         .add_tag(Tag::Bullet)
         .add_component(Shape {
@@ -67,7 +67,7 @@ pub fn create_bullet(
         })
 }
 
-pub fn create_player(manager: &mut EntityManager) -> &Entity {
+pub fn create_player(manager: &mut EntityManager<Tag>) -> &Entity<Tag> {
     manager
         .add_tag(Tag::Player)
         .add_component(Shape {
@@ -84,7 +84,7 @@ pub fn create_player(manager: &mut EntityManager) -> &Entity {
         })
 }
 
-pub fn create_enemy(manager: &mut EntityManager) -> &Entity {
+pub fn create_enemy(manager: &mut EntityManager<Tag>) -> &Entity<Tag> {
     let mut rng = rand::thread_rng();
     let speed = rng.gen_range(ENEMY_MIN_SPEED..=ENEMY_MAX_SPEED);
     let x_pos = rng.gen_range(0f32..=(WINDOWS_WIDTH - ENEMY_SIZE));
@@ -107,7 +107,7 @@ pub fn create_enemy(manager: &mut EntityManager) -> &Entity {
         })
 }
 
-pub fn create_enemy_spawner(manager: &mut EntityManager) -> &Entity {
+pub fn create_enemy_spawner(manager: &mut EntityManager<Tag>) -> &Entity<Tag> {
     manager.add_tag(Tag::Spawner).add_component(Spawner {
         max: MAX_ENEMY_SPAWN,
         interval: ENEMY_SPAWN_INTERVAL,
@@ -115,7 +115,7 @@ pub fn create_enemy_spawner(manager: &mut EntityManager) -> &Entity {
     })
 }
 
-pub fn create_bullet_spawner(manager: &mut EntityManager) -> &Entity {
+pub fn create_bullet_spawner(manager: &mut EntityManager<Tag>) -> &Entity<Tag> {
     manager.add_tag(Tag::Bullet).add_component(Spawner {
         max: usize::MAX,
         interval: BULLET_SPAWN_INTERVAL,
@@ -123,7 +123,7 @@ pub fn create_bullet_spawner(manager: &mut EntityManager) -> &Entity {
     })
 }
 
-pub fn create_score_board(manager: &mut EntityManager) -> &Entity {
+pub fn create_score_board(manager: &mut EntityManager<Tag>) -> &Entity<Tag> {
     manager
         .add_tag(Tag::Ui)
         .add_component(Scoreboard { current_score: 0 })

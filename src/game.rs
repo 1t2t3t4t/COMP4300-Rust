@@ -1,3 +1,4 @@
+use crate::space_shooter::Tag;
 use ecs::manager::EntityManager;
 use ggez::event::EventHandler;
 use ggez::graphics::Color;
@@ -7,13 +8,8 @@ use crate::ui::{render_ui_system, Button};
 
 #[derive(Default)]
 pub struct Game {
-    entity_manager: EntityManager,
+    entity_manager: EntityManager<Tag>,
     setup: bool,
-}
-
-#[derive(Debug)]
-pub enum Tag {
-    Ui,
 }
 
 impl Game {

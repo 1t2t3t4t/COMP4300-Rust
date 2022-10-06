@@ -11,7 +11,10 @@ use common::event::EventReceiver;
 use common::game_transform::{GameTransform, TryGet};
 use common::math::Vec2;
 
-pub fn player_movement_system(manager: &mut EntityManager, ctx: &mut Context) -> GameResult<()> {
+pub fn player_movement_system(
+    manager: &mut EntityManager<Tag>,
+    ctx: &mut Context,
+) -> GameResult<()> {
     let players = manager.get_entities_tag(Tag::Player);
     for player in players {
         let dt = ggez::timer::delta(ctx);
@@ -36,7 +39,7 @@ pub fn player_movement_system(manager: &mut EntityManager, ctx: &mut Context) ->
 }
 
 pub fn enemy_movement_system(
-    manager: &mut EntityManager,
+    manager: &mut EntityManager<Tag>,
     event: &mut impl EventReceiver<BoundCollide>,
     ctx: &mut Context,
 ) -> GameResult<()> {
@@ -60,7 +63,10 @@ pub fn enemy_movement_system(
     Ok(())
 }
 
-pub fn bullet_movement_system(manager: &mut EntityManager, ctx: &mut Context) -> GameResult<()> {
+pub fn bullet_movement_system(
+    manager: &mut EntityManager<Tag>,
+    ctx: &mut Context,
+) -> GameResult<()> {
     let bullets = manager.get_entities_tag(Tag::Bullet);
     let dt = ggez::timer::delta(ctx);
     for bullet in bullets {
@@ -73,7 +79,7 @@ pub fn bullet_movement_system(manager: &mut EntityManager, ctx: &mut Context) ->
     Ok(())
 }
 
-pub fn collider_follow_transform_system(manager: &mut EntityManager) -> GameResult<()> {
+pub fn collider_follow_transform_system(manager: &mut EntityManager<Tag>) -> GameResult<()> {
     let entities = manager.get_all();
     for entity in entities {
         if let Some(transform) = entity.get_component::<GameTransform>() {

@@ -21,7 +21,7 @@ use ggez::event::MouseButton;
 
 use super::EnemyKilled;
 
-pub fn enemy_spawner(manager: &mut EntityManager, ctx: &mut Context) -> GameResult<()> {
+pub fn enemy_spawner(manager: &mut EntityManager<Tag>, ctx: &mut Context) -> GameResult<()> {
     let enemy_count = manager.get_entities_tag(Tag::Enemy).len();
 
     let mut spawner = manager.get_entities_tag(Tag::Spawner);
@@ -38,8 +38,8 @@ pub fn enemy_spawner(manager: &mut EntityManager, ctx: &mut Context) -> GameResu
     Ok(())
 }
 
-pub fn shoot_system(manager: &mut EntityManager, ctx: &mut Context) -> GameResult<()> {
-    let mut query = manager.query_entities_tag_mut::<Spawner, _>(Tag::Bullet);
+pub fn shoot_system(manager: &mut EntityManager<Tag>, ctx: &mut Context) -> GameResult<()> {
+    let mut query = manager.query_entities_tag_mut::<Spawner>(Tag::Bullet);
     let spawner = query.first_mut().unwrap();
     let dt = ggez::timer::delta(ctx);
     let can_shoot = spawner.last_spawned_duration >= spawner.interval;
@@ -63,7 +63,7 @@ pub fn shoot_system(manager: &mut EntityManager, ctx: &mut Context) -> GameResul
     Ok(())
 }
 
-pub fn lifespan_system(manager: &mut EntityManager, ctx: &mut Context) -> GameResult<()> {
+pub fn lifespan_system(manager: &mut EntityManager<Tag>, ctx: &mut Context) -> GameResult<()> {
     let lifespans = manager.query_entities_component_mut::<Lifespan>();
     let dt = ggez::timer::delta(ctx);
     let mut to_kill_ids = Vec::<EntityId>::with_capacity(lifespans.len());
@@ -83,7 +83,7 @@ pub fn lifespan_system(manager: &mut EntityManager, ctx: &mut Context) -> GameRe
     Ok(())
 }
 
-pub fn aim_system(manager: &mut EntityManager, ctx: &mut Context) -> GameResult<()> {
+pub fn aim_system(manager: &mut EntityManager<Tag>, ctx: &mut Context) -> GameResult<()> {
     let entity = manager.get_entities_tag(Tag::Player);
     let player = entity.first().unwrap();
     let collider = player.try_get_component::<Collider>()?;
@@ -110,7 +110,7 @@ pub fn aim_system(manager: &mut EntityManager, ctx: &mut Context) -> GameResult<
 }
 
 pub fn kill_enemy_system(
-    manager: &mut EntityManager,
+    manager: &mut EntityManager<Tag>,
     sender: &mut impl EventSender<EnemyKilled>,
 ) -> GameResult<()> {
     let bullets = manager

@@ -4,29 +4,35 @@ use std::collections::vec_deque::VecDeque;
 use std::collections::HashMap;
 use std::hash::Hash;
 
+use crate::entity::{Entity, EntityId};
 use crate::type_query::TypesQueryable;
-use crate::{
-    entity::{Entity, EntityId},
-    Tag,
-};
-
-pub const DEFAULT_ENTITY_TAG: &str = "Default";
 
 #[derive(Default)]
-pub struct EntityManager {
-    entities: HashMap<EntityId, Entity>,
-    tags: HashMap<String, Vec<EntityId>>,
-    pending_add: VecDeque<Entity>,
+pub struct EntityManager<Tag = String>
+where
+    Tag: Hash + Eq,
+{
+    entities: HashMap<EntityId, Entity<Tag>>,
+    tags: HashMap<Tag, Vec<EntityId>>,
+    pending_add: VecDeque<Entity<Tag>>,
     size: u64,
 }
 
-impl EntityManager {
-    pub fn add(&mut self) -> &mut Entity {
-        self.add_tag(DEFAULT_ENTITY_TAG)
+impl<Tag> EntityManager<Tag>
+where
+    Tag: Hash + Eq + Default + Copy,
+{
+    pub fn add(&mut self) -> &mut Entity<Tag> {
+        self.add_tag(Tag::default())
     }
+}
 
-    pub fn add_tag<S: Tag>(&mut self, tag: S) -> &mut Entity {
-        let entity = Entity::new(self.size, tag.value());
+impl<Tag> EntityManager<Tag>
+where
+    Tag: Hash + Eq + Copy,
+{
+    pub fn add_tag(&mut self, tag: Tag) -> &mut Entity<Tag> {
+        let entity = Entity::new(self.size, tag);
         self.size += 1;
         let id = entity.id;
         self.pending_add.push_back(entity);
@@ -38,16 +44,16 @@ impl EntityManager {
         self.safe_insert_entity()
     }
 
-    pub fn get_all(&mut self) -> Vec<&mut Entity> {
+    pub fn get_all(&mut self) -> Vec<&mut Entity<Tag>> {
         self.entities.values_mut().collect()
     }
 
-    pub fn get_entity(&mut self, id: EntityId) -> Option<&mut Entity> {
+    pub fn get_entity(&mut self, id: EntityId) -> Option<&mut Entity<Tag>> {
         self.entities.get_mut(&id)
     }
 
-    pub fn get_entities_tag<S: Tag>(&mut self, tag: S) -> Vec<&mut Entity> {
-        if let Some(ids) = self.tags.get(&tag.value()) {
+    pub fn get_entities_tag(&mut self, tag: Tag) -> Vec<&mut Entity<Tag>> {
+        if let Some(ids) = self.tags.get(&tag) {
             self.entities
                 .iter_mut()
                 .filter_map(|(id, e)| if ids.contains(id) { Some(e) } else { None })
@@ -57,7 +63,7 @@ impl EntityManager {
         }
     }
 
-    pub fn query_entities_tag_mut<T: Any, S: Tag>(&mut self, tag: S) -> Vec<&mut T> {
+    pub fn query_entities_tag_mut<T: Any>(&mut self, tag: Tag) -> Vec<&mut T> {
         self.get_entities_tag(tag)
             .into_iter()
             .filter_map(|e| e.get_component_mut::<T>())
@@ -97,12 +103,12 @@ impl EntityManager {
             .values()
             .filter_map(|e| {
                 if !e.is_alive() {
-                    Some((e.id, e.tag.clone()))
+                    Some((e.id, e.tag))
                 } else {
                     None
                 }
             })
-            .collect::<Vec<(EntityId, String)>>();
+            .collect::<Vec<(EntityId, Tag)>>();
 
         for to_delete in to_delete_entities {
             if let Some(entities_vec) = self.tags.get_mut(&to_delete.1) {
@@ -139,7 +145,8 @@ where
 
 #[cfg(test)]
 mod tests {
-    use crate::{manager::DEFAULT_ENTITY_TAG, Tag};
+    use crate::manager::get_or_insert;
+    use std::collections::HashMap;
 
     use super::EntityManager;
 
@@ -150,9 +157,22 @@ mod tests {
     #[derive(Debug, Eq, PartialEq)]
     struct CompC(String);
 
+    #[derive(Hash, Eq, PartialEq, Copy, Clone, Debug)]
+    enum MyTag {
+        A,
+        B,
+        Def,
+    }
+
+    impl Default for MyTag {
+        fn default() -> Self {
+            Self::Def
+        }
+    }
+
     #[test]
     fn test_query_components() {
-        let mut manager = EntityManager::default();
+        let mut manager = EntityManager::<MyTag>::default();
         manager
             .add()
             .add_component(CompA(String::from("1")))
@@ -185,40 +205,40 @@ mod tests {
 
     #[test]
     fn test_insert_entity() {
-        let mut manager = EntityManager::default();
+        let mut manager = EntityManager::<MyTag>::default();
 
         let id = manager.add().id;
         manager.update();
 
         assert!(manager.entities.contains_key(&id));
-        assert!(manager.tags.contains_key(&DEFAULT_ENTITY_TAG.value()));
-        assert!(manager.tags[&DEFAULT_ENTITY_TAG.value()].contains(&id));
+        assert!(manager.tags.contains_key(&MyTag::default()));
+        assert!(manager.tags[&MyTag::default()].contains(&id));
     }
 
     #[test]
     fn test_insert_entity_tag() {
-        let mut manager = EntityManager::default();
-        let tag = "MyTag";
+        let mut manager = EntityManager::<MyTag>::default();
+        let tag = MyTag::B;
         let id = manager.add_tag(tag).id;
 
         manager.update();
 
         assert!(manager.entities.contains_key(&id));
-        assert!(manager.tags.contains_key(&tag.value()));
-        assert!(manager.tags[&tag.value()].contains(&id));
+        assert!(manager.tags.contains_key(&tag));
+        assert!(manager.tags[&tag].contains(&id));
 
         let id2 = manager.add_tag(tag).id;
 
         manager.update();
 
         assert!(manager.entities.contains_key(&id2));
-        assert!(manager.tags.contains_key(&tag.value()));
-        assert!(manager.tags[&tag.value()].contains(&id2));
+        assert!(manager.tags.contains_key(&tag));
+        assert!(manager.tags[&tag].contains(&id2));
     }
 
     #[test]
     fn test_get_entity() {
-        let mut manager = EntityManager::default();
+        let mut manager = EntityManager::<MyTag>::default();
         let id = manager.add().id;
         manager.add();
         manager.add();
@@ -229,13 +249,13 @@ mod tests {
         assert!(entity.is_some());
         let entity = entity.unwrap();
         assert_eq!(entity.id, id);
-        assert_eq!(entity.tag, DEFAULT_ENTITY_TAG.value());
+        assert_eq!(entity.tag, MyTag::default());
     }
 
     #[test]
     fn test_get_entity_tag() {
-        let mut manager = EntityManager::default();
-        let tag = "MyTag";
+        let mut manager = EntityManager::<MyTag>::default();
+        let tag = MyTag::B;
         let id1 = manager.add_tag(tag).id;
         let id2 = manager.add_tag(tag).id;
         manager.add();
@@ -250,8 +270,8 @@ mod tests {
 
     #[test]
     fn test_remove_dead() {
-        let mut manager = EntityManager::default();
-        let tag = "MyTag";
+        let mut manager = EntityManager::<MyTag>::default();
+        let tag = MyTag::A;
         let id1 = manager.add_tag(tag).id;
         let id2 = manager.add_tag(tag).id;
         manager.add();
@@ -270,8 +290,8 @@ mod tests {
 
     #[test]
     fn test_remove_dead_multiple_tags() {
-        let mut manager = EntityManager::default();
-        let tag = "MyTag";
+        let mut manager = EntityManager::<MyTag>::default();
+        let tag = MyTag::A;
         let id1 = manager.add_tag(tag).id;
         let id2 = manager.add().id;
         manager.add();
@@ -283,9 +303,18 @@ mod tests {
         assert!(manager.get_entity(id2).is_some());
         assert!(manager.get_entity(id1).is_none());
 
-        assert!(manager.tags[&DEFAULT_ENTITY_TAG.value()]
-            .iter()
-            .any(|id| *id == id2));
-        assert!(!manager.tags[&tag.value()].iter().any(|id| *id == id1));
+        assert!(manager.tags[&MyTag::default()].iter().any(|id| *id == id2));
+        assert!(!manager.tags[&tag].iter().any(|id| *id == id1));
+    }
+
+    #[test]
+    fn test_get_or_insert() {
+        let mut map = HashMap::<&str, i32>::from([("test2", 10i32)]);
+
+        let no_key_val = get_or_insert("test", &mut map);
+        assert_eq!(no_key_val, &mut 0i32);
+
+        let val = get_or_insert("test2", &mut map);
+        assert_eq!(val, &mut 10i32);
     }
 }

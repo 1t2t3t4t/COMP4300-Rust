@@ -15,7 +15,7 @@ pub enum BoundAxis {
 }
 
 pub fn windows_bound_collision_system<E: EventSender<BoundCollide>>(
-    manager: &mut EntityManager,
+    manager: &mut EntityManager<Tag>,
     event_system: &mut E,
 ) -> GameResult<()> {
     let enemies = manager.get_entities_tag(Tag::Enemy);
@@ -46,7 +46,7 @@ pub fn windows_bound_collision_system<E: EventSender<BoundCollide>>(
     Ok(())
 }
 
-pub fn player_collision_system(manager: &mut EntityManager) -> GameResult<()> {
+pub fn player_collision_system(manager: &mut EntityManager<Tag>) -> GameResult<()> {
     const DEATH_PENALTY: i32 = 500;
 
     let players = manager.get_entities_tag(Tag::Player);
