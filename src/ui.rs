@@ -47,9 +47,11 @@ pub fn render_ui_system(manager: &mut EntityManager<Tag>, ctx: &mut Context) -> 
 }
 
 pub fn render_fps_system(ctx: &mut Context) -> GameResult<()> {
+    let dt = ggez::timer::delta(ctx);
     let fps = ggez::timer::fps(ctx);
 
-    let mut text = ggez::graphics::Text::new(format!("fps: {}", fps.round()));
+    let mut text =
+        ggez::graphics::Text::new(format!("fps: {}; delta: {}", fps.round(), dt.as_millis()));
     text.set_font(Font::default(), PxScale::from(15f32));
     let (w, h) = (text.width(ctx), text.height(ctx));
     let position = [WINDOWS_WIDTH - 10f32 - w, WINDOWS_HEIGHT - 10f32 - h];
