@@ -13,7 +13,7 @@ use crate::space_shooter::component::constant::{
     BULLET_LIFESPAN, BULLET_SIZE, BULLET_SPAWN_INTERVAL, ENEMY_MAX_SPEED, ENEMY_MIN_SPEED,
     ENEMY_SIZE, ENEMY_SPAWN_INTERVAL, MAX_ENEMY_SPAWN,
 };
-use crate::space_shooter::component::game::Spawner;
+use crate::space_shooter::component::game::{DisplayText, Spawner};
 use crate::space_shooter::component::physics::Collider;
 use common::math::random::rand_element;
 use rand::Rng;
@@ -132,4 +132,10 @@ pub fn create_score_board(manager: &mut EntityManager<Tag>) -> &Entity<Tag> {
     manager
         .add_tag(Tag::Ui)
         .add_component(Scoreboard { current_score: 0 })
+}
+
+pub fn create_display_text_ui(manager: &mut EntityManager<Tag>) -> &Entity<Tag> {
+    manager
+        .add_tag(Tag::Ui)
+        .add_component(DisplayText::default())
 }

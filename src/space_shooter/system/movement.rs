@@ -3,19 +3,21 @@ use ggez::{Context, GameResult};
 use std::time::Duration;
 
 use crate::space_shooter::component::constant::PLAYER_SPEED;
+use crate::space_shooter::component::game::DisplayTextEvent;
 use crate::space_shooter::component::general::SpeedBoost;
 use crate::space_shooter::component::movement::Speed;
 use crate::space_shooter::component::physics::Collider;
 use crate::space_shooter::system::collision::BoundAxis;
 use crate::space_shooter::system::BoundCollide;
 use crate::space_shooter::Tag;
-use common::event::EventReceiver;
+use common::event::{EventReceiver, EventSender};
 use common::game_transform::{GameTransform, TryGet};
 use common::math::Vec2;
 
 pub fn player_speed_boost_system(
     manager: &mut EntityManager<Tag>,
     ctx: &mut Context,
+    event_sender: &mut impl EventSender<DisplayTextEvent>,
 ) -> GameResult<()> {
     let boosts = manager.query_entities_component_mut::<SpeedBoost>();
     let current_time = ggez::timer::time_since_start(ctx);
@@ -32,6 +34,16 @@ pub fn player_speed_boost_system(
             boost.is_boosting = true;
             boost.time_left = Duration::from_millis(200);
             boost.last_boost = Some(current_time);
+        } else if let Some(last_boost) = boost.last_boost {
+            if tap_boost && !should_boost {
+                event_sender.send(DisplayTextEvent {
+                    text: format!(
+                        "Boosting cool down wait for {} ms.",
+                        (current_time - last_boost).as_millis()
+                    ),
+                    dur: Duration::from_secs(2),
+                })
+            }
         }
 
         if boost.is_boosting {
