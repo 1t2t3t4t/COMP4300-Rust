@@ -89,16 +89,14 @@ pub fn aim_system(manager: &mut EntityManager<Tag>, ctx: &mut Context) -> GameRe
     let collider = player.try_get_component::<Collider>()?;
 
     let mouse_pos: Vec2 = ggez::input::mouse::position(ctx).into();
-    let aim_pos = Vec2::new(
-        mouse_pos.x.clamp(
-            collider.center.x - collider.radius,
-            collider.center.x + collider.radius,
-        ),
-        mouse_pos.y.clamp(
-            collider.center.y - collider.radius,
-            collider.center.y + collider.radius,
-        ),
-    );
+    let aim_radius = collider.radius * 2f32;
+    let aim_dir = mouse_pos - collider.center;
+
+    let aim_pos = if aim_dir.magnitude_sq() >= aim_radius.powf(2f32) {
+        collider.center + aim_dir.normalized() * aim_radius
+    } else {
+        mouse_pos
+    };
 
     let aim_circle = ggez::graphics::MeshBuilder::new()
         .circle(DrawMode::fill(), aim_pos, 8f32, 0.1, Color::GREEN)?

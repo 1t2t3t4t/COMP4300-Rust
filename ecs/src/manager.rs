@@ -1,6 +1,5 @@
 use std::any::Any;
 use std::borrow::Borrow;
-use std::collections::vec_deque::VecDeque;
 use std::collections::HashMap;
 use std::hash::Hash;
 
@@ -14,7 +13,7 @@ where
 {
     entities: HashMap<EntityId, Entity<Tag>>,
     tags: HashMap<Tag, Vec<EntityId>>,
-    pending_add: VecDeque<Entity<Tag>>,
+    pending_add: HashMap<EntityId, Entity<Tag>>,
     size: u64,
 }
 
@@ -35,8 +34,8 @@ where
         let entity = Entity::new(self.size, tag);
         self.size += 1;
         let id = entity.id;
-        self.pending_add.push_back(entity);
-        self.pending_add.iter_mut().find(|e| e.id == id).unwrap()
+        self.pending_add.insert(id, entity);
+        self.pending_add.get_mut(&id).unwrap()
     }
 
     pub fn update(&mut self) {
@@ -121,7 +120,9 @@ where
     }
 
     fn safe_insert_entity(&mut self) {
-        while let Some(entity) = self.pending_add.pop_front() {
+        let keys: Vec<EntityId> = self.pending_add.keys().copied().collect();
+        for key in keys {
+            let entity = self.pending_add.remove(&key).unwrap();
             let tag_entities = get_or_insert(&entity.tag, &mut self.tags);
             tag_entities.push(entity.id);
             self.entities.insert(entity.id, entity);
