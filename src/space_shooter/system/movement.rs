@@ -1,7 +1,9 @@
 use ecs::manager::EntityManager;
 use ggez::{Context, GameResult};
+use std::time::Duration;
 
 use crate::space_shooter::component::constant::PLAYER_SPEED;
+use crate::space_shooter::component::general::SpeedBoost;
 use crate::space_shooter::component::movement::Speed;
 use crate::space_shooter::component::physics::Collider;
 use crate::space_shooter::system::collision::BoundAxis;
@@ -10,6 +12,38 @@ use crate::space_shooter::Tag;
 use common::event::EventReceiver;
 use common::game_transform::{GameTransform, TryGet};
 use common::math::Vec2;
+
+pub fn player_speed_boost_system(
+    manager: &mut EntityManager<Tag>,
+    ctx: &mut Context,
+) -> GameResult<()> {
+    let boosts = manager.query_entities_component_mut::<SpeedBoost>();
+    let current_time = ggez::timer::time_since_start(ctx);
+    let tap_boost = ggez::input::keyboard::is_key_pressed(ctx, ggez::event::KeyCode::LShift);
+    let dt = ggez::timer::delta(ctx);
+
+    for (_, boost) in boosts {
+        let should_boost = match boost.last_boost {
+            None => true,
+            Some(last_boost) => current_time - last_boost >= Duration::from_secs(3),
+        };
+
+        if tap_boost && !boost.is_boosting && should_boost {
+            boost.is_boosting = true;
+            boost.time_left = Duration::from_millis(200);
+            boost.last_boost = Some(current_time);
+        }
+
+        if boost.is_boosting {
+            if boost.time_left <= dt || boost.time_left.is_zero() {
+                boost.is_boosting = false;
+            } else {
+                boost.time_left -= dt;
+            }
+        }
+    }
+    Ok(())
+}
 
 pub fn player_movement_system(
     manager: &mut EntityManager<Tag>,
@@ -31,9 +65,15 @@ pub fn player_movement_system(
         if ggez::input::keyboard::is_key_pressed(ctx, ggez::event::KeyCode::D) {
             dir.x += 1f32;
         }
+        let speed_boost = *player.try_get_component::<SpeedBoost>()?;
         let transform = player.try_get_component_mut::<GameTransform>()?;
-        transform.position =
-            transform.position + (dir.normalized() * PLAYER_SPEED * dt.as_secs_f32());
+        let speed = if speed_boost.is_boosting {
+            PLAYER_SPEED * 4f32
+        } else {
+            PLAYER_SPEED
+        };
+
+        transform.position = transform.position + (dir.normalized() * speed * dt.as_secs_f32());
     }
     Ok(())
 }

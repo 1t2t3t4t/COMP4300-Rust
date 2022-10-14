@@ -1,4 +1,4 @@
-use crate::space_shooter::component::general::{Lifespan, Score};
+use crate::space_shooter::component::general::{Lifespan, Score, SpeedBoost};
 use crate::space_shooter::component::movement::Speed;
 use crate::space_shooter::component::shape::{Geometry, Shape};
 use crate::space_shooter::Tag;
@@ -81,6 +81,11 @@ pub fn create_player(manager: &mut EntityManager<Tag>) -> &Entity<Tag> {
         .add_component(Collider {
             center: Vec2::new(WINDOWS_WIDTH / 2f32 - 32f32, WINDOWS_HEIGHT / 2f32 - 32f32),
             radius: 32f32,
+        })
+        .add_component(SpeedBoost {
+            is_boosting: false,
+            time_left: Duration::default(),
+            last_boost: None,
         })
 }
 

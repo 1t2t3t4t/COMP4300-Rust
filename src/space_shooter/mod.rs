@@ -52,6 +52,7 @@ impl EventHandler for SpaceGame {
         system::game::lifespan_system(&mut self.entity_manager, ctx)?;
         system::game::enemy_spawner(&mut self.entity_manager, ctx)?;
 
+        system::movement::player_speed_boost_system(&mut self.entity_manager, ctx)?;
         system::movement::player_movement_system(&mut self.entity_manager, ctx)?;
         system::movement::enemy_movement_system(
             &mut self.entity_manager,
