@@ -13,7 +13,7 @@ pub fn lifetime_debug_text_system(
     ctx: &mut Context,
 ) {
     let mut display_text = manager.query_entities_tag_mut::<DisplayText>(Tag::Ui);
-    if display_text.len() == 0 {
+    if display_text.is_empty() {
         return;
     }
     let display_text = &mut display_text[0];
@@ -42,7 +42,7 @@ pub fn display_debug_text_system(
     ctx: &mut Context,
 ) -> GameResult<()> {
     let mut display_text = manager.query_entities_tag_mut::<DisplayText>(Tag::Ui);
-    if display_text.len() == 0 {
+    if display_text.is_empty() {
         return Ok(());
     }
     let display_text = &mut display_text[0];

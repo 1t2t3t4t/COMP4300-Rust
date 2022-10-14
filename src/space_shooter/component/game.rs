@@ -19,11 +19,11 @@ pub struct DisplayTextEvent {
 #[derive(Default)]
 pub struct DisplayText {
     pub texts: Vec<DisplayTextEvent>,
-    pub cache: Option<CacheDisplayText>
+    pub cache: Option<CacheDisplayText>,
 }
 
 pub struct CacheDisplayText {
     pub raw_text: String,
     pub text: ggez::graphics::Text,
-    pub position: [f32; 2]
+    pub position: [f32; 2],
 }
