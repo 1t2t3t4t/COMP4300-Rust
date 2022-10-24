@@ -6,6 +6,22 @@ use std::hash::Hash;
 use crate::entity::{Entity, EntityId};
 use crate::type_query::TypesQueryable;
 
+macro_rules! take_iter_with_ids {
+    ($st: expr, $ids: tt) => {
+        $st.filter_map(move |(id, e)| {
+            if let Some(ids) = &$ids {
+                if ids.contains(id) {
+                    Some(e)
+                } else {
+                    None
+                }
+            } else {
+                None
+            }
+        })
+    };
+}
+
 #[derive(Default)]
 pub struct EntityManager<Tag = String>
 where
@@ -49,7 +65,7 @@ where
 
     pub fn update(&mut self) {
         self.safe_remove_entity();
-        self.safe_insert_entity()
+        self.safe_insert_entity();
     }
 
     pub fn get_all(&mut self) -> Vec<&mut Entity<Tag>> {
@@ -61,18 +77,8 @@ where
     }
 
     fn iter_entities_with_tag(&self, tag: Tag) -> impl Iterator<Item = &Entity<Tag>> {
-        let ids = self.tags.get(&tag).cloned();
-        self.entities.iter().filter_map(move |(id, e)| {
-            if let Some(ids) = &ids {
-                if ids.contains(id) {
-                    Some(e)
-                } else {
-                    None
-                }
-            } else {
-                None
-            }
-        })
+        let ids = self.tags.get(&tag);
+        take_iter_with_ids!(self.entities.iter(), ids)
     }
 
     pub fn get_entities_with_tag(&mut self, tag: Tag) -> Vec<&Entity<Tag>> {
@@ -80,18 +86,8 @@ where
     }
 
     fn iter_entities_with_tag_mut(&mut self, tag: Tag) -> impl Iterator<Item = &mut Entity<Tag>> {
-        let ids = self.tags.get(&tag).cloned();
-        self.entities.iter_mut().filter_map(move |(id, e)| {
-            if let Some(ids) = &ids {
-                if ids.contains(id) {
-                    Some(e)
-                } else {
-                    None
-                }
-            } else {
-                None
-            }
-        })
+        let ids = self.tags.get(&tag);
+        take_iter_with_ids!(self.entities.iter_mut(), ids)
     }
 
     pub fn get_entities_with_tag_mut(&mut self, tag: Tag) -> Vec<&mut Entity<Tag>> {
