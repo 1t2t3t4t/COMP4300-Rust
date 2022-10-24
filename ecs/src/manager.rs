@@ -30,6 +30,15 @@ impl<Tag> EntityManager<Tag>
 where
     Tag: Hash + Eq + Copy,
 {
+    pub fn new() -> Self {
+        Self {
+            tags: Default::default(),
+            entities: Default::default(),
+            pending_add: Default::default(),
+            size: Default::default(),
+        }
+    }
+
     pub fn add_tag(&mut self, tag: Tag) -> &mut Entity<Tag> {
         let entity = Entity::new(self.size, tag);
         self.size += 1;
@@ -97,7 +106,7 @@ where
     }
 
     fn safe_remove_entity(&mut self) {
-        let to_delete_entities = self
+        let to_delete_entities: Vec<(EntityId, Tag)> = self
             .entities
             .values()
             .filter_map(|e| {
@@ -107,7 +116,7 @@ where
                     None
                 }
             })
-            .collect::<Vec<(EntityId, Tag)>>();
+            .collect();
 
         for to_delete in to_delete_entities {
             if let Some(entities_vec) = self.tags.get_mut(&to_delete.1) {
@@ -200,6 +209,37 @@ mod tests {
         assert!(
             res.iter()
                 .any(|r| *r == (&CompA(String::from("2")), &CompB(String::from("2")))),
+            "Does not have 2"
+        );
+    }
+
+    #[test]
+    fn test_query_components_mut() {
+        let mut manager = EntityManager::<MyTag>::default();
+        manager
+            .add()
+            .add_component(CompA(String::from("1")))
+            .add_component(CompB(String::from("1")));
+        manager
+            .add()
+            .add_component(CompA(String::from("2")))
+            .add_component(CompB(String::from("2")))
+            .add_component(CompC(String::from("2")));
+        manager
+            .add()
+            .add_component(CompB(String::from("3")))
+            .add_component(CompC(String::from("3")));
+        manager.update();
+
+        let res = manager.query_entities_component_mut::<CompA>();
+
+        assert_eq!(res.len(), 2);
+        assert!(
+            res.iter().any(|r| *(r.1) == CompA(String::from("1"))),
+            "Does not have 1"
+        );
+        assert!(
+            res.iter().any(|r| *(r.1) == CompA(String::from("2"))),
             "Does not have 2"
         );
     }

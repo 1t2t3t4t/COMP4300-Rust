@@ -133,6 +133,17 @@ impl Sub for Vec2 {
     }
 }
 
+impl Sub<f32> for Vec2 {
+    type Output = Self;
+
+    fn sub(self, rhs: f32) -> Self::Output {
+        Self {
+            x: self.x - rhs,
+            y: self.y - rhs,
+        }
+    }
+}
+
 pub mod random {
     use rand::Rng;
 
