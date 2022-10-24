@@ -70,6 +70,7 @@ impl<Tag> Entity<Tag> {
 #[cfg(test)]
 mod tests {
     use std::any::TypeId;
+    use std::collections::HashSet;
 
     use super::{Entity, TypesQueryable};
 
@@ -77,7 +78,7 @@ mod tests {
 
     struct OtherComponent;
 
-    fn get_types<'e, T: TypesQueryable<'e>>() -> Vec<TypeId> {
+    fn get_types<'e, T: TypesQueryable<'e>>() -> HashSet<TypeId> {
         T::get_types()
     }
 
@@ -85,8 +86,8 @@ mod tests {
     fn test_query_types() {
         let types = get_types::<(MyComponent, OtherComponent)>();
 
-        assert_eq!(types[0], TypeId::of::<MyComponent>());
-        assert_eq!(types[1], TypeId::of::<OtherComponent>());
+        assert!(types.contains(&TypeId::of::<MyComponent>()));
+        assert!(types.contains(&TypeId::of::<OtherComponent>()));
     }
 
     #[test]

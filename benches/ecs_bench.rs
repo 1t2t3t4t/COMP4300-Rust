@@ -85,12 +85,11 @@ fn criterion_benchmark(c: &mut Criterion) {
 
     c.bench_function("query multiple comps with tag from 10,000 entities", |b| {
         let mut manager = setup_manager::<10_000>();
+        manager.update();
 
         b.iter(|| {
-            manager.update();
             let my_comp =
                 manager.query_entities_components_tag::<(MyComponent, ComponentC)>(MyTag::C);
-            assert_eq!(my_comp.len(), 1);
         });
     });
 }
