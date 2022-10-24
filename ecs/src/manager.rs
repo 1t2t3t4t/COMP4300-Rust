@@ -6,22 +6,6 @@ use std::hash::Hash;
 use crate::entity::{Entity, EntityId};
 use crate::type_query::TypesQueryable;
 
-macro_rules! take_iter_with_ids {
-    ($st: expr, $ids: tt) => {
-        $st.filter_map(move |(id, e)| {
-            if let Some(ids) = &$ids {
-                if ids.contains(id) {
-                    Some(e)
-                } else {
-                    None
-                }
-            } else {
-                None
-            }
-        })
-    };
-}
-
 #[derive(Default)]
 pub struct EntityManager<Tag = String>
 where
@@ -76,18 +60,34 @@ where
         self.entities.get_mut(&id)
     }
 
-    fn iter_entities_with_tag(&self, tag: Tag) -> impl Iterator<Item = &Entity<Tag>> {
+    fn iter_entities_with_tag(&self, tag: Tag) -> Vec<&Entity<Tag>> {
         let ids = self.tags.get(&tag);
-        take_iter_with_ids!(self.entities.iter(), ids)
+        if let Some(ids) = ids {
+            ids.into_iter()
+                .filter_map(|id| self.entities.get(id))
+                .collect()
+        } else {
+            vec![]
+        }
     }
 
     pub fn get_entities_with_tag(&mut self, tag: Tag) -> Vec<&Entity<Tag>> {
-        self.iter_entities_with_tag(tag).collect()
+        self.iter_entities_with_tag(tag)
     }
 
     fn iter_entities_with_tag_mut(&mut self, tag: Tag) -> impl Iterator<Item = &mut Entity<Tag>> {
         let ids = self.tags.get(&tag);
-        take_iter_with_ids!(self.entities.iter_mut(), ids)
+        self.entities.iter_mut().filter_map(move |(id, e)| {
+            if let Some(ids) = &ids {
+                if ids.contains(id) {
+                    Some(e)
+                } else {
+                    None
+                }
+            } else {
+                None
+            }
+        })
     }
 
     pub fn get_entities_with_tag_mut(&mut self, tag: Tag) -> Vec<&mut Entity<Tag>> {
@@ -106,6 +106,7 @@ where
         tag: Tag,
     ) -> Vec<T::QueryResult> {
         self.iter_entities_with_tag(tag)
+            .iter()
             .filter_map(|e| e.get_components::<T>())
             .collect()
     }
