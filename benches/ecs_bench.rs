@@ -63,11 +63,18 @@ fn setup_manager<const N: usize>() -> EntityManager<MyTag> {
 }
 
 fn criterion_benchmark(c: &mut Criterion) {
+    c.bench_function("update 1,000 entities", |b| {
+        b.iter(|| {
+            let mut manager = setup_manager::<1_000>();
+            manager.update();
+        });
+    });
+
     c.bench_function("query mut from 10,000 entities", |b| {
         let mut manager = setup_manager::<10_000>();
+        manager.update();
 
         b.iter(|| {
-            manager.update();
             let my_comp = manager.query_entities_component_mut::<MyComponent>();
             assert_eq!(my_comp.len(), 1);
         });
@@ -75,9 +82,9 @@ fn criterion_benchmark(c: &mut Criterion) {
 
     c.bench_function("query multiple comps from 10,000 entities", |b| {
         let mut manager = setup_manager::<10_000>();
+        manager.update();
 
         b.iter(|| {
-            manager.update();
             let my_comp = manager.query_entities_components::<(MyComponent, ComponentC)>();
             assert_eq!(my_comp.len(), 1);
         });
@@ -90,6 +97,7 @@ fn criterion_benchmark(c: &mut Criterion) {
         b.iter(|| {
             let my_comp =
                 manager.query_entities_components_tag::<(MyComponent, ComponentC)>(MyTag::C);
+            assert_eq!(my_comp.len(), 1);
         });
     });
 }
