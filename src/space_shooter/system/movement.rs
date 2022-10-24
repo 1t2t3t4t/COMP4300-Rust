@@ -61,7 +61,7 @@ pub fn player_movement_system(
     manager: &mut EntityManager<Tag>,
     ctx: &mut Context,
 ) -> GameResult<()> {
-    let players = manager.get_entities_tag(Tag::Player);
+    let players = manager.get_entities_with_tag_mut(Tag::Player);
     for player in players {
         let dt = ggez::timer::delta(ctx);
         let mut dir = Vec2::zero();
@@ -95,7 +95,7 @@ pub fn enemy_movement_system(
     event: &mut impl EventReceiver<BoundCollide>,
     ctx: &mut Context,
 ) -> GameResult<()> {
-    let enemies = manager.get_entities_tag(Tag::Enemy);
+    let enemies = manager.get_entities_with_tag_mut(Tag::Enemy);
     let dt = ggez::timer::delta(ctx);
     let collide_events = event.read();
 
@@ -119,7 +119,7 @@ pub fn bullet_movement_system(
     manager: &mut EntityManager<Tag>,
     ctx: &mut Context,
 ) -> GameResult<()> {
-    let bullets = manager.get_entities_tag(Tag::Bullet);
+    let bullets = manager.get_entities_with_tag_mut(Tag::Bullet);
     let dt = ggez::timer::delta(ctx);
     for bullet in bullets {
         if let Some(speed) = bullet.get_component::<Speed>() {

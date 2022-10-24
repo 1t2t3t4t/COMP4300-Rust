@@ -60,22 +60,42 @@ where
         self.entities.get_mut(&id)
     }
 
-    pub fn get_entities_tag(&mut self, tag: Tag) -> Vec<&mut Entity<Tag>> {
-        if let Some(ids) = self.tags.get(&tag) {
-            self.entities
-                .iter_mut()
-                .filter_map(|(id, e)| if ids.contains(id) { Some(e) } else { None })
-                .collect()
-        } else {
-            vec![]
-        }
+    fn iter_entities_with_tag(&self, tag: Tag) -> impl Iterator<Item = &Entity<Tag>> {
+        let ids = self.tags.get(&tag).cloned();
+        self.entities.iter().filter_map(move |(id, e)| {
+            if let Some(ids) = &ids {
+                if ids.contains(id) {
+                    Some(e)
+                } else {
+                    None
+                }
+            } else {
+                None
+            }
+        })
     }
 
-    pub fn query_entities_tag_mut<T: Any>(&mut self, tag: Tag) -> Vec<&mut T> {
-        self.get_entities_tag(tag)
-            .into_iter()
-            .filter_map(|e| e.get_component_mut::<T>())
-            .collect()
+    pub fn get_entities_with_tag(&mut self, tag: Tag) -> Vec<&Entity<Tag>> {
+        self.iter_entities_with_tag(tag).collect()
+    }
+
+    fn iter_entities_with_tag_mut(&mut self, tag: Tag) -> impl Iterator<Item = &mut Entity<Tag>> {
+        let ids = self.tags.get(&tag).cloned();
+        self.entities.iter_mut().filter_map(move |(id, e)| {
+            if let Some(ids) = &ids {
+                if ids.contains(id) {
+                    Some(e)
+                } else {
+                    None
+                }
+            } else {
+                None
+            }
+        })
+    }
+
+    pub fn get_entities_with_tag_mut(&mut self, tag: Tag) -> Vec<&mut Entity<Tag>> {
+        self.iter_entities_with_tag_mut(tag).collect()
     }
 
     pub fn query_entities_component<T: Any>(&self) -> Vec<&T> {
@@ -85,10 +105,25 @@ where
             .collect()
     }
 
+    pub fn query_entities_components_tag<'e, T: TypesQueryable<'e>>(
+        &'e mut self,
+        tag: Tag,
+    ) -> Vec<T::QueryResult> {
+        self.iter_entities_with_tag(tag)
+            .filter_map(|e| e.get_components::<T>())
+            .collect()
+    }
+
     pub fn query_entities_components<'e, T: TypesQueryable<'e>>(&'e self) -> Vec<T::QueryResult> {
         self.entities
             .values()
             .filter_map(|e| e.get_components::<T>())
+            .collect()
+    }
+
+    pub fn query_entities_component_tag_mut<T: Any>(&mut self, tag: Tag) -> Vec<&mut T> {
+        self.iter_entities_with_tag_mut(tag)
+            .filter_map(|e| e.get_component_mut::<T>())
             .collect()
     }
 
@@ -302,7 +337,7 @@ mod tests {
         manager.add();
         manager.update();
 
-        let entities = manager.get_entities_tag(tag);
+        let entities = manager.get_entities_with_tag(tag);
 
         assert_eq!(entities.len(), 2);
         assert!(entities.iter().any(|e| e.id == id1));
@@ -324,7 +359,7 @@ mod tests {
         assert!(manager.get_entity(id2).is_some());
         assert!(manager.get_entity(id1).is_none());
 
-        let tag_entries = manager.get_entities_tag(tag);
+        let tag_entries = manager.get_entities_with_tag(tag);
         assert!(tag_entries.iter().any(|e| e.id == id2));
         assert!(!tag_entries.iter().any(|e| e.id == id1));
     }

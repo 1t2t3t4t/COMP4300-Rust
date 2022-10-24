@@ -83,22 +83,13 @@ fn criterion_benchmark(c: &mut Criterion) {
         });
     });
 
-    c.bench_function("query mut from 100,000 entities", |b| {
-        let mut manager = setup_manager::<100_000>();
+    c.bench_function("query multiple comps with tag from 10,000 entities", |b| {
+        let mut manager = setup_manager::<10_000>();
 
         b.iter(|| {
             manager.update();
-            let my_comp = manager.query_entities_component_mut::<MyComponent>();
-            assert_eq!(my_comp.len(), 1);
-        });
-    });
-
-    c.bench_function("query multiple comps from 100,000 entities", |b| {
-        let mut manager = setup_manager::<100_000>();
-
-        b.iter(|| {
-            manager.update();
-            let my_comp = manager.query_entities_components::<(MyComponent, ComponentC)>();
+            let my_comp =
+                manager.query_entities_components_tag::<(MyComponent, ComponentC)>(MyTag::C);
             assert_eq!(my_comp.len(), 1);
         });
     });

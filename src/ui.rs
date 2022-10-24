@@ -15,7 +15,7 @@ pub struct Button {
 }
 
 pub fn render_ui_system(manager: &mut EntityManager<Tag>, ctx: &mut Context) -> GameResult<()> {
-    let buttons = manager.get_entities_tag(Tag::Ui);
+    let buttons = manager.get_entities_with_tag_mut(Tag::Ui);
     let mut y_pos = 10f32;
 
     for entity in buttons {

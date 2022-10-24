@@ -12,7 +12,7 @@ pub fn lifetime_debug_text_system(
     manager: &mut EntityManager<Tag>,
     ctx: &mut Context,
 ) {
-    let mut display_text = manager.query_entities_tag_mut::<DisplayText>(Tag::Ui);
+    let mut display_text = manager.query_entities_component_tag_mut::<DisplayText>(Tag::Ui);
     if display_text.is_empty() {
         return;
     }
@@ -41,7 +41,7 @@ pub fn display_debug_text_system(
     manager: &mut EntityManager<Tag>,
     ctx: &mut Context,
 ) -> GameResult<()> {
-    let mut display_text = manager.query_entities_tag_mut::<DisplayText>(Tag::Ui);
+    let mut display_text = manager.query_entities_component_tag_mut::<DisplayText>(Tag::Ui);
     if display_text.is_empty() {
         return Ok(());
     }

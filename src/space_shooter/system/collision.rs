@@ -18,7 +18,7 @@ pub fn windows_bound_collision_system<E: EventSender<BoundCollide>>(
     manager: &mut EntityManager<Tag>,
     event_system: &mut E,
 ) -> GameResult<()> {
-    let enemies = manager.get_entities_tag(Tag::Enemy);
+    let enemies = manager.get_entities_with_tag_mut(Tag::Enemy);
     for enemy in enemies {
         let collider = enemy.try_get_component::<Collider>()?;
 
@@ -49,10 +49,10 @@ pub fn windows_bound_collision_system<E: EventSender<BoundCollide>>(
 pub fn player_collision_system(manager: &mut EntityManager<Tag>) -> GameResult<()> {
     const DEATH_PENALTY: i32 = 500;
 
-    let players = manager.get_entities_tag(Tag::Player);
+    let players = manager.get_entities_with_tag(Tag::Player);
     let player = players.first().unwrap();
     let &collider = player.try_get_component::<Collider>()?;
-    let enemies = manager.get_entities_tag(Tag::Enemy);
+    let enemies = manager.get_entities_with_tag_mut(Tag::Enemy);
     let mut collided = false;
 
     for enemy in enemies {
@@ -67,7 +67,7 @@ pub fn player_collision_system(manager: &mut EntityManager<Tag>) -> GameResult<(
     }
 
     if collided {
-        let mut players = manager.get_entities_tag(Tag::Player);
+        let mut players = manager.get_entities_with_tag_mut(Tag::Player);
         players.first_mut().unwrap().destroy();
         component::create_player(manager);
 
