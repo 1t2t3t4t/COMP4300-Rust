@@ -60,7 +60,7 @@ where
         self.entities.get_mut(&id)
     }
 
-    fn iter_entities_with_tag(&self, tag: Tag) -> Vec<&Entity<Tag>> {
+    pub fn get_entities_with_tag(&mut self, tag: Tag) -> Vec<&Entity<Tag>> {
         let ids = self.tags.get(&tag);
         if let Some(ids) = ids {
             ids.into_iter()
@@ -69,10 +69,6 @@ where
         } else {
             vec![]
         }
-    }
-
-    pub fn get_entities_with_tag(&mut self, tag: Tag) -> Vec<&Entity<Tag>> {
-        self.iter_entities_with_tag(tag)
     }
 
     fn iter_entities_with_tag_mut(&mut self, tag: Tag) -> impl Iterator<Item = &mut Entity<Tag>> {
@@ -105,7 +101,7 @@ where
         &'e mut self,
         tag: Tag,
     ) -> Vec<T::QueryResult> {
-        self.iter_entities_with_tag(tag)
+        self.get_entities_with_tag(tag)
             .iter()
             .filter_map(|e| e.get_components::<T>())
             .collect()
