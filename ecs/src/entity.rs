@@ -121,6 +121,9 @@ mod tests {
 
         let res = entity.get_components::<(MyComponent, OtherComponent)>();
         assert!(res.is_some());
+
+        let res = entity.get_components::<(OtherComponent, MyComponent)>();
+        assert!(res.is_some());
     }
 
     #[test]

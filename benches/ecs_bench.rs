@@ -100,6 +100,19 @@ fn criterion_benchmark(c: &mut Criterion) {
             assert_eq!(my_comp.len(), 1);
         });
     });
+
+    c.bench_function(
+        "query multiple comps mut with tag from 10,000 entities",
+        |b| {
+            let mut manager = setup_manager::<10_000>();
+            manager.update();
+
+            b.iter(|| {
+                let my_comp = manager.query_entities_component_tag_mut::<MyComponent>(MyTag::C);
+                assert_eq!(my_comp.len(), 1);
+            });
+        },
+    );
 }
 
 criterion_group!(benches, criterion_benchmark);

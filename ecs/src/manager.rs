@@ -1,6 +1,6 @@
 use std::any::Any;
 use std::borrow::Borrow;
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 use std::hash::Hash;
 
 use crate::entity::{Entity, EntityId};
@@ -73,17 +73,20 @@ where
 
     fn iter_entities_with_tag_mut(&mut self, tag: Tag) -> impl Iterator<Item = &mut Entity<Tag>> {
         let ids = self.tags.get(&tag);
-        self.entities.iter_mut().filter_map(move |(id, e)| {
-            if let Some(ids) = &ids {
-                if ids.contains(id) {
+        let id_set = if let Some(ids) = ids {
+            HashSet::from_iter(ids.iter())
+        } else {
+            HashSet::new()
+        };
+        self.entities.iter_mut().filter_map(
+            move |(id, e)| {
+                if id_set.contains(id) {
                     Some(e)
                 } else {
                     None
                 }
-            } else {
-                None
-            }
-        })
+            },
+        )
     }
 
     pub fn get_entities_with_tag_mut(&mut self, tag: Tag) -> Vec<&mut Entity<Tag>> {
