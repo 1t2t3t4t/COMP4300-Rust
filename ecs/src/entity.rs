@@ -1,8 +1,6 @@
 use crate::type_query::TypesQueryable;
-use std::{
-    any::{Any, TypeId},
-    collections::HashMap,
-};
+use hashbrown::HashMap;
+use std::any::{Any, TypeId};
 
 pub type EntityId = u64;
 
@@ -22,7 +20,7 @@ impl<Tag> Entity<Tag> {
             alive: true,
             tag,
             components: Default::default(),
-            components_combination: Default::default()
+            components_combination: Default::default(),
         }
     }
 
@@ -126,11 +124,8 @@ mod tests {
         struct C;
 
         let mut entity = Entity::new(1, "".to_string());
-        entity
-            .add_component(A)
-            .add_component(B)
-            .add_component(C);
-        
+        entity.add_component(A).add_component(B).add_component(C);
+
         let test_contain = |v: &[Vec<TypeId>], mut types: Vec<TypeId>| -> bool {
             types.sort();
             v.contains(&types)
@@ -142,11 +137,23 @@ mod tests {
         assert!(test_contain(&results, vec![TypeId::of::<B>()]));
         assert!(test_contain(&results, vec![TypeId::of::<C>()]));
 
-        assert!(test_contain(&results, vec![TypeId::of::<A>(), TypeId::of::<B>()]));
-        assert!(test_contain(&results, vec![TypeId::of::<A>(), TypeId::of::<C>()]));
-        assert!(test_contain(&results, vec![TypeId::of::<B>(), TypeId::of::<C>()]));
+        assert!(test_contain(
+            &results,
+            vec![TypeId::of::<A>(), TypeId::of::<B>()]
+        ));
+        assert!(test_contain(
+            &results,
+            vec![TypeId::of::<A>(), TypeId::of::<C>()]
+        ));
+        assert!(test_contain(
+            &results,
+            vec![TypeId::of::<B>(), TypeId::of::<C>()]
+        ));
 
-        assert!(test_contain(&results, vec![TypeId::of::<A>(), TypeId::of::<B>(), TypeId::of::<C>()]));
+        assert!(test_contain(
+            &results,
+            vec![TypeId::of::<A>(), TypeId::of::<B>(), TypeId::of::<C>()]
+        ));
     }
 
     #[test]

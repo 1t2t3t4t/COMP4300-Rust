@@ -1,6 +1,6 @@
+use hashbrown::{HashMap, HashSet};
 use std::any::{Any, TypeId};
 use std::borrow::Borrow;
-use std::collections::{HashMap, HashSet};
 use std::hash::Hash;
 
 use crate::entity::{Entity, EntityId};
@@ -248,7 +248,7 @@ where
 #[cfg(test)]
 mod tests {
     use crate::manager::get_or_insert;
-    use std::collections::HashMap;
+    use hashbrown::HashMap;
 
     use super::EntityManager;
 
