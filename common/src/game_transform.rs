@@ -25,7 +25,7 @@ pub trait TryGet {
     fn try_get_components<'e, T: TypesQueryable<'e>>(&'e self) -> GameResult<T::QueryResult>;
 }
 
-impl TryGet for Entity {
+impl<Tag> TryGet for Entity<Tag> {
     fn try_get_component<T: Any>(&self) -> GameResult<&T> {
         self.get_component::<T>().ok_or_else(|| {
             GameError::CustomError(format!(

@@ -1,4 +1,4 @@
-use crate::space_shooter::component::general::{Lifespan, Score};
+use crate::space_shooter::component::general::{Lifespan, Score, SpeedBoost};
 use crate::space_shooter::component::movement::Speed;
 use crate::space_shooter::component::shape::{Geometry, Shape};
 use crate::space_shooter::Tag;
@@ -13,7 +13,7 @@ use crate::space_shooter::component::constant::{
     BULLET_LIFESPAN, BULLET_SIZE, BULLET_SPAWN_INTERVAL, ENEMY_MAX_SPEED, ENEMY_MIN_SPEED,
     ENEMY_SIZE, ENEMY_SPAWN_INTERVAL, MAX_ENEMY_SPAWN,
 };
-use crate::space_shooter::component::game::Spawner;
+use crate::space_shooter::component::game::{DisplayText, Spawner};
 use crate::space_shooter::component::physics::Collider;
 use common::math::random::rand_element;
 use rand::Rng;
@@ -45,10 +45,10 @@ pub(crate) mod constant {
 }
 
 pub fn create_bullet(
-    manager: &mut EntityManager,
+    manager: &mut EntityManager<Tag>,
     speed: Speed,
     transform: GameTransform,
-) -> &Entity {
+) -> &Entity<Tag> {
     manager
         .add_tag(Tag::Bullet)
         .add_component(Shape {
@@ -67,7 +67,7 @@ pub fn create_bullet(
         })
 }
 
-pub fn create_player(manager: &mut EntityManager) -> &Entity {
+pub fn create_player(manager: &mut EntityManager<Tag>) -> &Entity<Tag> {
     manager
         .add_tag(Tag::Player)
         .add_component(Shape {
@@ -82,9 +82,14 @@ pub fn create_player(manager: &mut EntityManager) -> &Entity {
             center: Vec2::new(WINDOWS_WIDTH / 2f32 - 32f32, WINDOWS_HEIGHT / 2f32 - 32f32),
             radius: 32f32,
         })
+        .add_component(SpeedBoost {
+            is_boosting: false,
+            time_left: Duration::default(),
+            last_boost: None,
+        })
 }
 
-pub fn create_enemy(manager: &mut EntityManager) -> &Entity {
+pub fn create_enemy(manager: &mut EntityManager<Tag>) -> &Entity<Tag> {
     let mut rng = rand::thread_rng();
     let speed = rng.gen_range(ENEMY_MIN_SPEED..=ENEMY_MAX_SPEED);
     let x_pos = rng.gen_range(0f32..=(WINDOWS_WIDTH - ENEMY_SIZE));
@@ -107,7 +112,7 @@ pub fn create_enemy(manager: &mut EntityManager) -> &Entity {
         })
 }
 
-pub fn create_enemy_spawner(manager: &mut EntityManager) -> &Entity {
+pub fn create_enemy_spawner(manager: &mut EntityManager<Tag>) -> &Entity<Tag> {
     manager.add_tag(Tag::Spawner).add_component(Spawner {
         max: MAX_ENEMY_SPAWN,
         interval: ENEMY_SPAWN_INTERVAL,
@@ -115,7 +120,7 @@ pub fn create_enemy_spawner(manager: &mut EntityManager) -> &Entity {
     })
 }
 
-pub fn create_bullet_spawner(manager: &mut EntityManager) -> &Entity {
+pub fn create_bullet_spawner(manager: &mut EntityManager<Tag>) -> &Entity<Tag> {
     manager.add_tag(Tag::Bullet).add_component(Spawner {
         max: usize::MAX,
         interval: BULLET_SPAWN_INTERVAL,
@@ -123,8 +128,14 @@ pub fn create_bullet_spawner(manager: &mut EntityManager) -> &Entity {
     })
 }
 
-pub fn create_score_board(manager: &mut EntityManager) -> &Entity {
+pub fn create_score_board(manager: &mut EntityManager<Tag>) -> &Entity<Tag> {
     manager
         .add_tag(Tag::Ui)
         .add_component(Scoreboard { current_score: 0 })
+}
+
+pub fn create_display_text_ui(manager: &mut EntityManager<Tag>) -> &Entity<Tag> {
+    manager
+        .add_tag(Tag::Ui)
+        .add_component(DisplayText::default())
 }

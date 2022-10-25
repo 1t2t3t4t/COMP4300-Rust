@@ -8,9 +8,15 @@ edition = "2021"
 [workspace]
 members = ["./ecs", "./common"]
 
+[dev-dependencies]
+criterion = "0.4.0"
+
+[[bench]]
+name = "ecs_bench"
+harness = false
+
 [dependencies]
 ggez = "0.7.0"
 ecs = { path = "./ecs" }
 rand = "0.8.5"
 common = { path = "./common" }
-sdl2 = { version = "0.35.2", features = [ "bundled" ] }

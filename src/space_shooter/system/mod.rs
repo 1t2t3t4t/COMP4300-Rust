@@ -6,6 +6,7 @@ pub mod collision;
 pub mod game;
 pub mod movement;
 pub mod render;
+pub mod ui;
 
 pub struct EnemyKilled(pub GameTransform);
 

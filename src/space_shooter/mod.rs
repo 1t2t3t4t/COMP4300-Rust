@@ -8,18 +8,25 @@ use ggez::{Context, GameError};
 mod component;
 mod system;
 
-#[derive(Debug)]
-enum Tag {
+#[derive(Debug, Hash, Eq, PartialEq, Copy, Clone)]
+pub enum Tag {
     Player,
     Enemy,
     Bullet,
     Ui,
     Spawner,
+    Default,
+}
+
+impl Default for Tag {
+    fn default() -> Self {
+        Self::Default
+    }
 }
 
 #[derive(Default)]
 pub struct SpaceGame {
-    entity_manager: EntityManager,
+    entity_manager: EntityManager<Tag>,
     event_system: EventSystem,
     setup: bool,
 }
@@ -32,6 +39,7 @@ impl SpaceGame {
         component::create_enemy_spawner(&mut self.entity_manager);
         component::create_bullet_spawner(&mut self.entity_manager);
         component::create_score_board(&mut self.entity_manager);
+        component::create_display_text_ui(&mut self.entity_manager);
     }
 }
 
@@ -42,9 +50,20 @@ impl EventHandler for SpaceGame {
         }
         self.entity_manager.update();
 
+        system::ui::lifetime_debug_text_system(
+            &mut self.event_system,
+            &mut self.entity_manager,
+            ctx,
+        );
+
         system::game::lifespan_system(&mut self.entity_manager, ctx)?;
         system::game::enemy_spawner(&mut self.entity_manager, ctx)?;
 
+        system::movement::player_speed_boost_system(
+            &mut self.entity_manager,
+            ctx,
+            &mut self.event_system,
+        )?;
         system::movement::player_movement_system(&mut self.entity_manager, ctx)?;
         system::movement::enemy_movement_system(
             &mut self.entity_manager,
@@ -61,7 +80,7 @@ impl EventHandler for SpaceGame {
             &mut self.entity_manager,
             &mut self.event_system,
         )?;
-        system::game::player_collision_system(&mut self.entity_manager)?;
+        system::collision::player_collision_system(&mut self.entity_manager)?;
         Ok(())
     }
 
@@ -72,6 +91,7 @@ impl EventHandler for SpaceGame {
         render_fps_system(ctx)?;
         system::game::aim_system(&mut self.entity_manager, ctx)?;
         system::render::render_scoreboard_system(&self.entity_manager, ctx)?;
+        system::ui::display_debug_text_system(&mut self.entity_manager, ctx)?;
 
         ggez::graphics::present(ctx)?;
         ggez::timer::yield_now();

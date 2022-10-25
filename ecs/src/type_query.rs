@@ -5,7 +5,7 @@ pub trait TypesQueryable<'e> {
     type QueryResult;
 
     fn get_types() -> Vec<TypeId>;
-    fn query(entity: &'e Entity) -> Option<Self::QueryResult>;
+    fn query<T>(entity: &'e Entity<T>) -> Option<Self::QueryResult>;
 }
 
 macro_rules! types_queryable_tuple {
@@ -21,7 +21,7 @@ macro_rules! types_queryable_tuple {
                 ]
             }
 
-            fn query(entity: &'e Entity) -> Option<Self::QueryResult> {
+            fn query<T>(entity: &'e Entity<T>) -> Option<Self::QueryResult> {
                 if !entity.has_components::<Self>() {
                     None
                 } else {

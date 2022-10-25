@@ -7,15 +7,15 @@ use std::{
 pub type EntityId = u64;
 
 #[derive(Debug)]
-pub struct Entity {
+pub struct Entity<Tag> {
     pub id: EntityId,
-    pub tag: String,
+    pub tag: Tag,
     alive: bool,
     components: HashMap<TypeId, Box<dyn Any>>,
 }
 
-impl Entity {
-    pub(crate) fn new(id: EntityId, tag: String) -> Self {
+impl<Tag> Entity<Tag> {
+    pub(crate) fn new(id: EntityId, tag: Tag) -> Self {
         Self {
             id,
             alive: true,
@@ -61,7 +61,9 @@ impl Entity {
     }
 
     pub fn has_components<'e, T: TypesQueryable<'e>>(&'e self) -> bool {
-        T::get_types().iter().all(|id| self.components.contains_key(id))
+        T::get_types()
+            .iter()
+            .all(|id| self.components.contains_key(id))
     }
 }
 
@@ -118,6 +120,9 @@ mod tests {
         entity.add_component(OtherComponent);
 
         let res = entity.get_components::<(MyComponent, OtherComponent)>();
+        assert!(res.is_some());
+
+        let res = entity.get_components::<(OtherComponent, MyComponent)>();
         assert!(res.is_some());
     }
 

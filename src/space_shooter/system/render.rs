@@ -1,6 +1,7 @@
 use crate::space_shooter::component::game::Scoreboard;
 use crate::space_shooter::component::general::Lifespan;
 use crate::space_shooter::component::shape::{Geometry, Shape};
+use crate::space_shooter::Tag;
 use common::game_transform::GameTransform;
 use ecs::entity::Entity;
 use ecs::manager::EntityManager;
@@ -51,7 +52,7 @@ fn get_drawable(
     .build(ctx)
 }
 
-fn render_shapes(entities: &[&mut Entity], ctx: &mut Context) -> GameResult<()> {
+fn render_shapes(entities: &[&mut Entity<Tag>], ctx: &mut Context) -> GameResult<()> {
     for entity in entities {
         if let (Some(shape), Some(transform)) = (
             entity.get_component::<Shape>(),
@@ -71,11 +72,11 @@ fn render_shapes(entities: &[&mut Entity], ctx: &mut Context) -> GameResult<()> 
     Ok(())
 }
 
-pub fn render_shape_system(manager: &mut EntityManager, ctx: &mut Context) -> GameResult<()> {
+pub fn render_shape_system(manager: &mut EntityManager<Tag>, ctx: &mut Context) -> GameResult<()> {
     render_shapes(&manager.get_all(), ctx)
 }
 
-pub fn render_scoreboard_system(manager: &EntityManager, ctx: &mut Context) -> GameResult<()> {
+pub fn render_scoreboard_system(manager: &EntityManager<Tag>, ctx: &mut Context) -> GameResult<()> {
     let boards = manager.query_entities_component::<Scoreboard>();
     for board in boards {
         let mut text = Text::new(format!("Score: {}", board.current_score));

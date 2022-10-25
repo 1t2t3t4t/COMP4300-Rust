@@ -81,13 +81,32 @@ impl Add for Vec2 {
     }
 }
 
-impl Mul<f32> for Vec2 {
+impl<T> Add<T> for Vec2
+where
+    T: Into<f32>,
+{
     type Output = Self;
 
-    fn mul(self, rhs: f32) -> Self::Output {
+    fn add(self, rhs: T) -> Self::Output {
+        let num = rhs.into();
         Self {
-            x: self.x * rhs,
-            y: self.y * rhs,
+            x: self.x + num,
+            y: self.y + num,
+        }
+    }
+}
+
+impl<T> Mul<T> for Vec2
+where
+    T: Into<f32>,
+{
+    type Output = Self;
+
+    fn mul(self, rhs: T) -> Self::Output {
+        let num = rhs.into();
+        Self {
+            x: self.x * num,
+            y: self.y * num,
         }
     }
 }
@@ -110,6 +129,17 @@ impl Sub for Vec2 {
         Self {
             x: self.x - rhs.x,
             y: self.y - rhs.y,
+        }
+    }
+}
+
+impl Sub<f32> for Vec2 {
+    type Output = Self;
+
+    fn sub(self, rhs: f32) -> Self::Output {
+        Self {
+            x: self.x - rhs,
+            y: self.y - rhs,
         }
     }
 }
