@@ -80,6 +80,16 @@ fn criterion_benchmark(c: &mut Criterion) {
         });
     });
 
+    c.bench_function("query from 10,000 entities", |b| {
+        let mut manager = setup_manager::<10_000>();
+        manager.update();
+
+        b.iter(|| {
+            let my_comp = manager.query_entities_component::<MyComponent>();
+            assert_eq!(my_comp.len(), 1);
+        });
+    });
+
     c.bench_function("query multiple comps from 10,000 entities", |b| {
         let mut manager = setup_manager::<10_000>();
         manager.update();

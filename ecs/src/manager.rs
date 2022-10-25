@@ -37,7 +37,7 @@ where
             entities: Default::default(),
             pending_add: Default::default(),
             size: Default::default(),
-            component_index: Default::default()
+            component_index: Default::default(),
         }
     }
 
@@ -96,10 +96,17 @@ where
     }
 
     pub fn query_entities_component<T: Any>(&self) -> Vec<&T> {
-        self.entities
-            .values()
-            .filter_map(|e| e.get_component::<T>())
-            .collect()
+        let types = vec![TypeId::of::<T>()];
+        let entities_id = self.component_index.get(&types);
+        if let Some(entities_id) = entities_id {
+            entities_id
+                .iter()
+                .filter_map(|id| self.entities.get(id))
+                .filter_map(|e| e.get_component::<T>())
+                .collect()
+        } else {
+            vec![]
+        }
     }
 
     pub fn query_entities_components_tag<'e, T: TypesQueryable<'e>>(
@@ -115,7 +122,8 @@ where
         } else {
             let component_entities_id = component_entities_id.unwrap();
             let tags_entities_id = tags_entities_id.unwrap();
-            let (base_looping, haystack) = if component_entities_id.len() >= tags_entities_id.len() {
+            let (base_looping, haystack) = if component_entities_id.len() >= tags_entities_id.len()
+            {
                 (tags_entities_id, component_entities_id)
             } else {
                 (component_entities_id, tags_entities_id)
@@ -149,22 +157,48 @@ where
     }
 
     pub fn query_entities_component_tag_mut<T: Any>(&mut self, tag: Tag) -> Vec<&mut T> {
-        self.iter_entities_with_tag_mut(tag)
-            .filter_map(|e| e.get_component_mut::<T>())
-            .collect()
+        let types = vec![TypeId::of::<T>()];
+        let entities_id = self.component_index.get(&types).cloned();
+        if let Some(entities_id) = entities_id {
+            self.iter_entities_with_tag_mut(tag)
+                .filter_map(|e| {
+                    if entities_id.contains(&e.id) {
+                        Some(e)
+                    } else {
+                        None
+                    }
+                })
+                .filter_map(|e| e.get_component_mut::<T>())
+                .collect()
+        } else {
+            vec![]
+        }
     }
 
     pub fn query_entities_component_mut<T: Any>(&mut self) -> Vec<(EntityId, &mut T)> {
-        self.entities
-            .values_mut()
-            .filter_map(|e| {
-                let id = e.id;
-                match e.get_component_mut::<T>() {
-                    Some(component) => Some((id, component)),
-                    _ => None,
-                }
-            })
-            .collect()
+        let types = vec![TypeId::of::<T>()];
+        let entities_id = self.component_index.get(&types);
+        if let Some(entities_id) = entities_id {
+            self.entities
+                .iter_mut()
+                .filter_map(|e| {
+                    if entities_id.contains(e.0) {
+                        Some(e.1)
+                    } else {
+                        None
+                    }
+                })
+                .filter_map(|e| {
+                    let id = e.id;
+                    match e.get_component_mut::<T>() {
+                        Some(component) => Some((id, component)),
+                        _ => None,
+                    }
+                })
+                .collect()
+        } else {
+            vec![]
+        }
     }
 
     fn safe_remove_entity(&mut self) {
@@ -319,10 +353,7 @@ mod tests {
     fn test_insert_entity() {
         let mut manager = EntityManager::<MyTag>::default();
 
-        let id = manager.add()
-            .add_component(CompA)
-            .add_component(CompB)
-            .id;
+        let id = manager.add().add_component(CompA).add_component(CompB).id;
         manager.update();
 
         assert!(manager.entities.contains_key(&id));
