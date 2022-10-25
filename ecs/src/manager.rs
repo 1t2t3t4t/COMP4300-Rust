@@ -134,12 +134,18 @@ mod tests {
 
     use super::EntityManager;
 
-    #[derive(Debug, Eq, PartialEq)]
-    struct CompA(String);
-    #[derive(Debug, Eq, PartialEq)]
-    struct CompB(String);
-    #[derive(Debug, Eq, PartialEq)]
-    struct CompC(String);
+    macro_rules! generate_components {
+        ($a: tt) => {
+            #[derive(Debug, Eq, PartialEq)]
+            struct $a(String);
+        };
+        ($a: tt, $($b: tt),*) => {
+            generate_components!($a);
+            generate_components!($($b),*);
+        };
+    }
+
+    generate_components!(CompA, CompB, CompC, CompD, CompE);
 
     #[test]
     fn test_query_components() {

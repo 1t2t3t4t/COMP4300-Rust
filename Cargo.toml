@@ -11,6 +11,6 @@ members = ["./ecs", "./common"]
 [dependencies]
 ggez = "0.7.0"
 ecs = { path = "./ecs" }
-rand = "0.8.4"
+rand = "0.8.5"
 common = { path = "./common" }
 sdl2 = { version = "0.35.2", features = [ "bundled" ] }
