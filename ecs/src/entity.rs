@@ -32,6 +32,29 @@ impl<Tag> Entity<Tag> {
         self.alive
     }
 
+    pub(crate) fn get_components_combination(&self) -> Vec<Vec<TypeId>> {
+        let component_types: Vec<TypeId> = self.components.keys().cloned().collect();
+        let mut results: Vec<Vec<TypeId>> = Vec::new();
+
+        for i in 0..component_types.len() {
+            results.push(vec![component_types[i]]);
+            let mut combinations: Vec<TypeId> = vec![component_types[i]];
+
+            for j in (i + 1)..component_types.len() {
+                combinations.push(component_types[j]);
+                combinations.sort();
+                results.push(combinations.clone());
+
+                if j != i + 1 {
+                    let mut v = vec![component_types[i], component_types[j]];
+                    v.sort();
+                    results.push(v);
+                }
+            }
+        }
+        results
+    }
+
     pub fn add_component<T: Any>(&mut self, component: T) -> &mut Self {
         let added = self
             .components
@@ -87,6 +110,36 @@ mod tests {
 
         assert_eq!(types[0], TypeId::of::<MyComponent>());
         assert_eq!(types[1], TypeId::of::<OtherComponent>());
+    }
+
+    #[test]
+    fn test_components_combination() {
+        struct A;
+        struct B;
+        struct C;
+
+        let mut entity = Entity::new(1, "".to_string());
+        entity
+            .add_component(A)
+            .add_component(B)
+            .add_component(C);
+        
+        let test_contain = |v: &[Vec<TypeId>], mut types: Vec<TypeId>| -> bool {
+            types.sort();
+            v.contains(&types)
+        };
+
+        let results = entity.get_components_combination();
+        assert_eq!(results.len(), 7);
+        assert!(test_contain(&results, vec![TypeId::of::<A>()]));
+        assert!(test_contain(&results, vec![TypeId::of::<B>()]));
+        assert!(test_contain(&results, vec![TypeId::of::<C>()]));
+
+        assert!(test_contain(&results, vec![TypeId::of::<A>(), TypeId::of::<B>()]));
+        assert!(test_contain(&results, vec![TypeId::of::<A>(), TypeId::of::<C>()]));
+        assert!(test_contain(&results, vec![TypeId::of::<B>(), TypeId::of::<C>()]));
+
+        assert!(test_contain(&results, vec![TypeId::of::<A>(), TypeId::of::<B>(), TypeId::of::<C>()]));
     }
 
     #[test]
