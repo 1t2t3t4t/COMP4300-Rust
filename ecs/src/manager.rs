@@ -195,11 +195,11 @@ where
             let tag_entities = get_or_insert(&entity.tag, &mut self.tags);
             let component_combinations = entity.get_components_combination();
             tag_entities.insert(entity.id);
-            self.entities.insert(entity.id, entity);
             for combination in component_combinations {
                 let component_entities = get_or_insert(combination, &mut self.component_index);
                 component_entities.insert(key);
             }
+            self.entities.insert(entity.id, entity);
         }
     }
 }

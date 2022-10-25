@@ -12,6 +12,7 @@ pub struct Entity<Tag> {
     pub tag: Tag,
     alive: bool,
     components: HashMap<TypeId, Box<dyn Any>>,
+    components_combination: Vec<Vec<TypeId>>,
 }
 
 impl<Tag> Entity<Tag> {
@@ -20,7 +21,8 @@ impl<Tag> Entity<Tag> {
             id,
             alive: true,
             tag,
-            components: HashMap::new(),
+            components: Default::default(),
+            components_combination: Default::default()
         }
     }
 
@@ -32,7 +34,7 @@ impl<Tag> Entity<Tag> {
         self.alive
     }
 
-    pub(crate) fn get_components_combination(&self) -> Vec<Vec<TypeId>> {
+    fn update_combinations(&mut self) {
         let component_types: Vec<TypeId> = self.components.keys().cloned().collect();
         let mut results: Vec<Vec<TypeId>> = Vec::new();
 
@@ -52,7 +54,11 @@ impl<Tag> Entity<Tag> {
                 }
             }
         }
-        results
+        self.components_combination = results;
+    }
+
+    pub(crate) fn get_components_combination(&self) -> &Vec<Vec<TypeId>> {
+        &self.components_combination
     }
 
     pub fn add_component<T: Any>(&mut self, component: T) -> &mut Self {
@@ -60,6 +66,7 @@ impl<Tag> Entity<Tag> {
             .components
             .insert(TypeId::of::<T>(), Box::new(component));
         debug_assert!(added.is_none(), "Component already added");
+        self.update_combinations();
         self
     }
 
