@@ -101,8 +101,7 @@ where
         if let Some(entities_id) = entities_id {
             entities_id
                 .iter()
-                .filter_map(|id| self.entities.get(id))
-                .filter_map(|e| e.get_component::<T>())
+                .filter_map(|id| self.entities.get(id).and_then(|e| e.get_component::<T>()))
                 .collect()
         } else {
             vec![]
@@ -148,8 +147,7 @@ where
         if let Some(entities_id) = entities_id {
             entities_id
                 .iter()
-                .filter_map(|id| self.entities.get(id))
-                .filter_map(|e| e.get_components::<T>())
+                .filter_map(|id| self.entities.get(id).and_then(|e| e.get_components::<T>()))
                 .collect()
         } else {
             vec![]
@@ -163,12 +161,11 @@ where
             self.iter_entities_with_tag_mut(tag)
                 .filter_map(|e| {
                     if entities_id.contains(&e.id) {
-                        Some(e)
+                        e.get_component_mut::<T>()
                     } else {
                         None
                     }
                 })
-                .filter_map(|e| e.get_component_mut::<T>())
                 .collect()
         } else {
             vec![]
@@ -183,16 +180,12 @@ where
                 .iter_mut()
                 .filter_map(|e| {
                     if entities_id.contains(e.0) {
-                        Some(e.1)
+                        match e.1.get_component_mut::<T>() {
+                            Some(component) => Some((e.0.clone(), component)),
+                            _ => None,
+                        }
                     } else {
                         None
-                    }
-                })
-                .filter_map(|e| {
-                    let id = e.id;
-                    match e.get_component_mut::<T>() {
-                        Some(component) => Some((id, component)),
-                        _ => None,
                     }
                 })
                 .collect()
