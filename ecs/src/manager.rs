@@ -1,4 +1,4 @@
-use std::any::Any;
+use std::any::{Any, TypeId};
 use std::borrow::Borrow;
 use std::collections::{HashMap, HashSet};
 use std::hash::Hash;
@@ -12,6 +12,7 @@ where
     Tag: Hash + Eq,
 {
     entities: HashMap<EntityId, Entity<Tag>>,
+    component_index: HashMap<Vec<TypeId>, Vec<EntityId>>,
     tags: HashMap<Tag, Vec<EntityId>>,
     pending_add: HashMap<EntityId, Entity<Tag>>,
     size: u64,
@@ -36,6 +37,7 @@ where
             entities: Default::default(),
             pending_add: Default::default(),
             size: Default::default(),
+            component_index: Default::default()
         }
     }
 
@@ -70,7 +72,7 @@ where
             vec![]
         }
     }
-
+    
     fn iter_entities_with_tag_mut(&mut self, tag: Tag) -> impl Iterator<Item = &mut Entity<Tag>> {
         let ids = self.tags.get(&tag);
         let id_set = if let Some(ids) = ids {
@@ -111,10 +113,18 @@ where
     }
 
     pub fn query_entities_components<'e, T: TypesQueryable<'e>>(&'e self) -> Vec<T::QueryResult> {
-        self.entities
-            .values()
-            .filter_map(|e| e.get_components::<T>())
-            .collect()
+        let mut types = T::get_types();
+        types.sort();
+        let entities_id = self.component_index.get(&types);
+        if let Some(entities_id) = entities_id {
+            entities_id
+                .iter()
+                .filter_map(|id| self.entities.get(id))
+                .filter_map(|e| e.get_components::<T>())
+                .collect()
+        } else {
+            vec![]
+        }
     }
 
     pub fn query_entities_component_tag_mut<T: Any>(&mut self, tag: Tag) -> Vec<&mut T> {
@@ -164,8 +174,13 @@ where
         for key in keys {
             let entity = self.pending_add.remove(&key).unwrap();
             let tag_entities = get_or_insert(&entity.tag, &mut self.tags);
+            let component_combinations = entity.get_components_combination();
             tag_entities.push(entity.id);
             self.entities.insert(entity.id, entity);
+            for combination in component_combinations {
+                let component_entities = get_or_insert(combination, &mut self.component_index);
+                component_entities.push(key);
+            }
         }
     }
 }
@@ -285,12 +300,17 @@ mod tests {
     fn test_insert_entity() {
         let mut manager = EntityManager::<MyTag>::default();
 
-        let id = manager.add().id;
+        let id = manager.add()
+            .add_component(CompA)
+            .add_component(CompB)
+            .id;
         manager.update();
 
         assert!(manager.entities.contains_key(&id));
         assert!(manager.tags.contains_key(&MyTag::default()));
         assert!(manager.tags[&MyTag::default()].contains(&id));
+
+        assert_eq!(manager.component_index.len(), 3);
     }
 
     #[test]
