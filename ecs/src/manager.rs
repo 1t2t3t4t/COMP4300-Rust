@@ -12,8 +12,8 @@ where
     Tag: Hash + Eq,
 {
     entities: HashMap<EntityId, Entity<Tag>>,
-    component_index: HashMap<Vec<TypeId>, Vec<EntityId>>,
-    tags: HashMap<Tag, Vec<EntityId>>,
+    component_index: HashMap<Vec<TypeId>, HashSet<EntityId>>,
+    tags: HashMap<Tag, HashSet<EntityId>>,
     pending_add: HashMap<EntityId, Entity<Tag>>,
     size: u64,
 }
@@ -72,7 +72,7 @@ where
             vec![]
         }
     }
-    
+
     fn iter_entities_with_tag_mut(&mut self, tag: Tag) -> impl Iterator<Item = &mut Entity<Tag>> {
         let ids = self.tags.get(&tag);
         let id_set = if let Some(ids) = ids {
@@ -106,10 +106,31 @@ where
         &'e mut self,
         tag: Tag,
     ) -> Vec<T::QueryResult> {
-        self.get_entities_with_tag(tag)
-            .iter()
-            .filter_map(|e| e.get_components::<T>())
-            .collect()
+        let mut types = T::get_types();
+        types.sort();
+        let component_entities_id = self.component_index.get(&types);
+        let tags_entities_id = self.tags.get(&tag);
+        if component_entities_id.is_none() && tags_entities_id.is_none() {
+            vec![]
+        } else {
+            let component_entities_id = component_entities_id.unwrap();
+            let tags_entities_id = tags_entities_id.unwrap();
+            let (base_looping, haystack) = if component_entities_id.len() >= tags_entities_id.len() {
+                (tags_entities_id, component_entities_id)
+            } else {
+                (component_entities_id, tags_entities_id)
+            };
+            base_looping
+                .iter()
+                .filter_map(|id| {
+                    if haystack.contains(id) {
+                        self.entities.get(id).and_then(|e| e.get_components::<T>())
+                    } else {
+                        None
+                    }
+                })
+                .collect()
+        }
     }
 
     pub fn query_entities_components<'e, T: TypesQueryable<'e>>(&'e self) -> Vec<T::QueryResult> {
@@ -161,9 +182,7 @@ where
 
         for to_delete in to_delete_entities {
             if let Some(entities_vec) = self.tags.get_mut(&to_delete.1) {
-                if let Some(idx) = entities_vec.iter().position(|e_id| *e_id == to_delete.0) {
-                    entities_vec.remove(idx);
-                }
+                entities_vec.remove(&to_delete.0);
             }
             self.entities.remove(&to_delete.0);
         }
@@ -175,11 +194,11 @@ where
             let entity = self.pending_add.remove(&key).unwrap();
             let tag_entities = get_or_insert(&entity.tag, &mut self.tags);
             let component_combinations = entity.get_components_combination();
-            tag_entities.push(entity.id);
+            tag_entities.insert(entity.id);
             self.entities.insert(entity.id, entity);
             for combination in component_combinations {
                 let component_entities = get_or_insert(combination, &mut self.component_index);
-                component_entities.push(key);
+                component_entities.insert(key);
             }
         }
     }
