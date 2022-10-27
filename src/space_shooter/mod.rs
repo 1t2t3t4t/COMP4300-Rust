@@ -8,25 +8,17 @@ use ggez::{Context, GameError};
 mod component;
 mod system;
 
-#[derive(Debug, Hash, Eq, PartialEq, Copy, Clone)]
-pub enum Tag {
-    Player,
-    Enemy,
-    Bullet,
-    Ui,
-    Spawner,
-    Default,
-}
-
-impl Default for Tag {
-    fn default() -> Self {
-        Self::Default
-    }
+pub mod tag {
+    pub struct Player;
+    pub struct Enemy;
+    pub struct Bullet;
+    pub struct Ui;
+    pub struct Spawner;
 }
 
 #[derive(Default)]
 pub struct SpaceGame {
-    entity_manager: EntityManager<Tag>,
+    entity_manager: EntityManager,
     event_system: EventSystem,
     setup: bool,
 }

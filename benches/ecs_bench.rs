@@ -3,23 +3,9 @@ use ecs::entity::Entity;
 use ecs::manager::EntityManager;
 use rand::Rng;
 
-#[derive(Eq, PartialEq, Hash, Copy, Clone)]
-enum MyTag {
-    A,
-    B,
-    C,
-}
-
-impl MyTag {
-    fn rand() -> Self {
-        match rand::thread_rng().gen_range(0..3) {
-            0 => MyTag::A,
-            1 => MyTag::B,
-            2 => MyTag::C,
-            _ => unreachable!(),
-        }
-    }
-}
+struct A;
+struct B;
+struct C;
 
 #[derive(Default, Debug)]
 struct ComponentA(i32);
@@ -33,7 +19,7 @@ struct ComponentC(u32);
 #[derive(Debug)]
 struct MyComponent(String);
 
-fn random_assign_component(entity: &mut Entity<MyTag>) {
+fn random_assign_component(entity: &mut Entity) {
     let mut thread_rand = rand::thread_rng();
     if thread_rand.gen_bool(0.3) {
         entity.add_component(ComponentA::default());
@@ -48,14 +34,14 @@ fn random_assign_component(entity: &mut Entity<MyTag>) {
     }
 }
 
-fn setup_manager<const N: usize>() -> EntityManager<MyTag> {
+fn setup_manager<const N: usize>() -> EntityManager {
     let mut manager = EntityManager::new();
     for _ in 0..N {
-        let mut entity = manager.add_tag(MyTag::rand());
+        let mut entity = manager.add_tag(A);
         random_assign_component(&mut entity);
     }
     manager
-        .add_tag(MyTag::C)
+        .add_tag(C)
         .add_component(MyComponent("Boss".to_string()))
         .add_component(ComponentC::default());
 
@@ -105,8 +91,7 @@ fn criterion_benchmark(c: &mut Criterion) {
         manager.update();
 
         b.iter(|| {
-            let my_comp =
-                manager.query_entities_components_tag::<(MyComponent, ComponentC)>(MyTag::C);
+            let my_comp = manager.query_entities_components::<(MyComponent, ComponentC, C)>();
             assert_eq!(my_comp.len(), 1);
         });
     });
@@ -118,7 +103,7 @@ fn criterion_benchmark(c: &mut Criterion) {
             manager.update();
 
             b.iter(|| {
-                let my_comp = manager.query_entities_component_tag_mut::<MyComponent>(MyTag::C);
+                let my_comp = manager.query_entities_component_tag_mut::<MyComponent, C>();
                 assert_eq!(my_comp.len(), 1);
             });
         },

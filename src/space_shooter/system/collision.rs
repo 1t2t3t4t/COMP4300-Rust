@@ -1,7 +1,7 @@
 use crate::space_shooter::component::game::Scoreboard;
 use crate::space_shooter::component::physics::Collider;
 use crate::space_shooter::system::BoundCollide;
-use crate::space_shooter::{component, Tag};
+use crate::space_shooter::{component, tag};
 use crate::{WINDOWS_HEIGHT, WINDOWS_WIDTH};
 use common::event::EventSender;
 use common::game_transform::{GameTransform, TryGet};
@@ -15,10 +15,10 @@ pub enum BoundAxis {
 }
 
 pub fn windows_bound_collision_system<E: EventSender<BoundCollide>>(
-    manager: &mut EntityManager<Tag>,
+    manager: &mut EntityManager,
     event_system: &mut E,
 ) -> GameResult<()> {
-    let enemies = manager.get_entities_with_tag_mut(Tag::Enemy);
+    let enemies = manager.get_entities_with_tag_mut::<tag::Enemy>();
     for enemy in enemies {
         let collider = enemy.try_get_component::<Collider>()?;
 
@@ -46,13 +46,13 @@ pub fn windows_bound_collision_system<E: EventSender<BoundCollide>>(
     Ok(())
 }
 
-pub fn player_collision_system(manager: &mut EntityManager<Tag>) -> GameResult<()> {
+pub fn player_collision_system(manager: &mut EntityManager) -> GameResult<()> {
     const DEATH_PENALTY: i32 = 500;
 
-    let players = manager.get_entities_with_tag(Tag::Player);
+    let players = manager.get_entities_with_tag::<tag::Player>();
     let player = players.first().unwrap();
     let &collider = player.try_get_component::<Collider>()?;
-    let enemies = manager.get_entities_with_tag_mut(Tag::Enemy);
+    let enemies = manager.get_entities_with_tag_mut::<tag::Enemy>();
     let mut collided = false;
 
     for enemy in enemies {
@@ -67,7 +67,7 @@ pub fn player_collision_system(manager: &mut EntityManager<Tag>) -> GameResult<(
     }
 
     if collided {
-        let mut players = manager.get_entities_with_tag_mut(Tag::Player);
+        let mut players = manager.get_entities_with_tag_mut::<tag::Player>();
         players.first_mut().unwrap().destroy();
         component::create_player(manager);
 

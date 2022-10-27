@@ -1,4 +1,4 @@
-use crate::space_shooter::Tag;
+use crate::space_shooter::tag;
 use ecs::manager::EntityManager;
 use ggez::event::EventHandler;
 use ggez::graphics::Color;
@@ -8,18 +8,20 @@ use crate::ui::{render_ui_system, Button};
 
 #[derive(Default)]
 pub struct Game {
-    entity_manager: EntityManager<Tag>,
+    entity_manager: EntityManager,
     setup: bool,
 }
 
 impl Game {
     fn setup(&mut self) {
         self.setup = true;
-        let space_game_btn = self.entity_manager.add_tag(Tag::Ui);
-        space_game_btn.add_component(Button {
-            title: "Space Game".to_string(),
-            size: 50f32,
-        });
+        let space_game_btn = self.entity_manager.add();
+        space_game_btn
+            .add_component(Button {
+                title: "Space Game".to_string(),
+                size: 50f32,
+            })
+            .add_component(tag::Ui);
     }
 }
 

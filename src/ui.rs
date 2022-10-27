@@ -6,7 +6,7 @@ use ggez::{
     Context, GameResult,
 };
 
-use crate::space_shooter::Tag;
+use crate::space_shooter::tag;
 use crate::{WINDOWS_HEIGHT, WINDOWS_WIDTH};
 
 pub struct Button {
@@ -14,8 +14,8 @@ pub struct Button {
     pub size: f32,
 }
 
-pub fn render_ui_system(manager: &mut EntityManager<Tag>, ctx: &mut Context) -> GameResult<()> {
-    let buttons = manager.get_entities_with_tag_mut(Tag::Ui);
+pub fn render_ui_system(manager: &mut EntityManager, ctx: &mut Context) -> GameResult<()> {
+    let buttons = manager.get_entities_with_tag_mut::<tag::Ui>();
     let mut y_pos = 10f32;
 
     for entity in buttons {

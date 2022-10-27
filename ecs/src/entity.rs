@@ -5,20 +5,18 @@ use std::any::{Any, TypeId};
 pub type EntityId = u64;
 
 #[derive(Debug)]
-pub struct Entity<Tag> {
+pub struct Entity {
     pub id: EntityId,
-    pub tag: Tag,
     alive: bool,
     components: HashMap<TypeId, Box<dyn Any>>,
     components_combination: Vec<Vec<TypeId>>,
 }
 
-impl<Tag> Entity<Tag> {
-    pub(crate) fn new(id: EntityId, tag: Tag) -> Self {
+impl Entity {
+    pub(crate) fn new(id: EntityId) -> Self {
         Self {
             id,
             alive: true,
-            tag,
             components: Default::default(),
             components_combination: Default::default(),
         }
@@ -123,7 +121,7 @@ mod tests {
         struct B;
         struct C;
 
-        let mut entity = Entity::new(1, "".to_string());
+        let mut entity = Entity::new(1);
         entity.add_component(A).add_component(B).add_component(C);
 
         let test_contain = |v: &[Vec<TypeId>], mut types: Vec<TypeId>| -> bool {
@@ -158,7 +156,7 @@ mod tests {
 
     #[test]
     fn test_get_component_not_exist() {
-        let mut entity = Entity::new(1, "".to_string());
+        let mut entity = Entity::new(1);
         let comp = MyComponent;
 
         entity.add_component(comp);
@@ -170,7 +168,7 @@ mod tests {
 
     #[test]
     fn test_get_component() {
-        let mut entity = Entity::new(1, "".to_string());
+        let mut entity = Entity::new(1);
         let comp = MyComponent;
 
         entity.add_component(comp);
@@ -182,7 +180,7 @@ mod tests {
 
     #[test]
     fn test_get_components() {
-        let mut entity = Entity::new(1, "".to_string());
+        let mut entity = Entity::new(1);
         entity.add_component(MyComponent);
         entity.add_component(OtherComponent);
 
@@ -197,7 +195,7 @@ mod tests {
     fn test_check_components() {
         struct RandomComponent;
 
-        let mut entity = Entity::new(1, "".to_string());
+        let mut entity = Entity::new(1);
         entity.add_component(MyComponent);
         entity.add_component(OtherComponent);
 
@@ -208,7 +206,7 @@ mod tests {
 
     #[test]
     fn test_check_multi_components() {
-        let mut entity = Entity::new(1, "".to_string());
+        let mut entity = Entity::new(1);
         entity.add_component(MyComponent);
         entity.add_component(OtherComponent);
 
@@ -220,7 +218,7 @@ mod tests {
     fn test_check_multi_components_mismatch() {
         struct RandomComponent;
 
-        let mut entity = Entity::new(1, "".to_string());
+        let mut entity = Entity::new(1);
         entity.add_component(MyComponent);
         entity.add_component(RandomComponent);
 

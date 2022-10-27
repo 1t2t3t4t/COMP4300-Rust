@@ -9,13 +9,13 @@ use crate::space_shooter::component::movement::Speed;
 use crate::space_shooter::component::physics::Collider;
 use crate::space_shooter::system::collision::BoundAxis;
 use crate::space_shooter::system::BoundCollide;
-use crate::space_shooter::Tag;
+use crate::space_shooter::tag;
 use common::event::{EventReceiver, EventSender};
 use common::game_transform::{GameTransform, TryGet};
 use common::math::Vec2;
 
 pub fn player_speed_boost_system(
-    manager: &mut EntityManager<Tag>,
+    manager: &mut EntityManager,
     ctx: &mut Context,
     event_sender: &mut impl EventSender<DisplayTextEvent>,
 ) -> GameResult<()> {
@@ -57,11 +57,8 @@ pub fn player_speed_boost_system(
     Ok(())
 }
 
-pub fn player_movement_system(
-    manager: &mut EntityManager<Tag>,
-    ctx: &mut Context,
-) -> GameResult<()> {
-    let players = manager.get_entities_with_tag_mut(Tag::Player);
+pub fn player_movement_system(manager: &mut EntityManager, ctx: &mut Context) -> GameResult<()> {
+    let players = manager.get_entities_with_tag_mut::<tag::Player>();
     for player in players {
         let dt = ggez::timer::delta(ctx);
         let mut dir = Vec2::zero();
@@ -91,11 +88,11 @@ pub fn player_movement_system(
 }
 
 pub fn enemy_movement_system(
-    manager: &mut EntityManager<Tag>,
+    manager: &mut EntityManager,
     event: &mut impl EventReceiver<BoundCollide>,
     ctx: &mut Context,
 ) -> GameResult<()> {
-    let enemies = manager.get_entities_with_tag_mut(Tag::Enemy);
+    let enemies = manager.get_entities_with_tag_mut::<tag::Enemy>();
     let dt = ggez::timer::delta(ctx);
     let collide_events = event.read();
 
@@ -115,11 +112,8 @@ pub fn enemy_movement_system(
     Ok(())
 }
 
-pub fn bullet_movement_system(
-    manager: &mut EntityManager<Tag>,
-    ctx: &mut Context,
-) -> GameResult<()> {
-    let bullets = manager.get_entities_with_tag_mut(Tag::Bullet);
+pub fn bullet_movement_system(manager: &mut EntityManager, ctx: &mut Context) -> GameResult<()> {
+    let bullets = manager.get_entities_with_tag_mut::<tag::Bullet>();
     let dt = ggez::timer::delta(ctx);
     for bullet in bullets {
         if let Some(speed) = bullet.get_component::<Speed>() {
@@ -131,7 +125,7 @@ pub fn bullet_movement_system(
     Ok(())
 }
 
-pub fn collider_follow_transform_system(manager: &mut EntityManager<Tag>) -> GameResult<()> {
+pub fn collider_follow_transform_system(manager: &mut EntityManager) -> GameResult<()> {
     let entities = manager.get_all();
     for entity in entities {
         if let Some(transform) = entity.get_component::<GameTransform>() {

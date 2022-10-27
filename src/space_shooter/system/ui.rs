@@ -1,5 +1,5 @@
 use crate::space_shooter::component::game::{CacheDisplayText, DisplayText, DisplayTextEvent};
-use crate::space_shooter::Tag;
+use crate::space_shooter::tag;
 use crate::{WINDOWS_HEIGHT, WINDOWS_WIDTH};
 use common::event::EventReceiver;
 use ecs::manager::EntityManager;
@@ -9,10 +9,10 @@ use std::ops::Add;
 
 pub fn lifetime_debug_text_system(
     event_reader: &mut impl EventReceiver<DisplayTextEvent>,
-    manager: &mut EntityManager<Tag>,
+    manager: &mut EntityManager,
     ctx: &mut Context,
 ) {
-    let mut display_text = manager.query_entities_component_tag_mut::<DisplayText>(Tag::Ui);
+    let mut display_text = manager.query_entities_component_tag_mut::<DisplayText, tag::Ui>();
     if display_text.is_empty() {
         return;
     }
@@ -37,11 +37,8 @@ pub fn lifetime_debug_text_system(
         .collect();
 }
 
-pub fn display_debug_text_system(
-    manager: &mut EntityManager<Tag>,
-    ctx: &mut Context,
-) -> GameResult<()> {
-    let mut display_text = manager.query_entities_component_tag_mut::<DisplayText>(Tag::Ui);
+pub fn display_debug_text_system(manager: &mut EntityManager, ctx: &mut Context) -> GameResult<()> {
+    let mut display_text = manager.query_entities_component_tag_mut::<DisplayText, tag::Ui>();
     if display_text.is_empty() {
         return Ok(());
     }
